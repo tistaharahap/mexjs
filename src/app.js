@@ -78,7 +78,7 @@ const socket$ = Rx.Observable.webSocket(opts)
   // Only interested with the right VWMA
   .filter(() => {
     const lastCandle = CANDLESTICKS[CANDLESTICKS.length - 1]
-    return new Decimal(lastCandle.low)
+    return new Decimal(lastCandle.high)
       .lessThanOrEqualTo(lastCandle.vwma)
   })
 

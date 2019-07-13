@@ -8,7 +8,7 @@ const env = {
   slInPercentage: parseFloat(process.env.SL_IN_PERCENTAGE || 0.5),
   useTestnet: process.env.USE_TESTNET || 0,
   orderQuantity: process.env.ORDER_QUANTITY || 50,
-  margin: process.env.MARGIN || 20,
+  margin: process.env.MARGIN || 50,
 }
 
 export default env
