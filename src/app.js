@@ -3,11 +3,10 @@ import WebSocket from 'websocket'
 import { BitMexPlus } from 'bitmex-plus'
 import env from './env'
 import { generateCandleStream } from './candlestream'
-import sendTelegramMessage from './telegram-utils'
 import { generateOrders, setMargin, cancelAllOrders } from './orders'
 import logger from './logger'
 import { NektrabarLong } from './strategies'
-import { logConfigAndLastCandle } from './utils'
+import { logConfigAndLastCandle, sendPostTradeNotification } from './utils'
 
 /**
  * @type {Array} name A name to use.
@@ -89,10 +88,7 @@ const socket$ = Rx.Observable.webSocket(opts)
   })
 
   // Send telegram message after a successful trade (or not)
-  .switchMap((res) => {
-    const message = `💵💵*Mexjs*💵💵\n\n${res}`
-    return sendTelegramMessage(message)
-  })
+  .switchMap(msg => sendPostTradeNotification(msg))
   .catch(err => logger.error(err.stack))
 
 socket$

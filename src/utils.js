@@ -1,5 +1,6 @@
 import logger from './logger'
 import env from './env'
+import sendTelegramMessage from './telegram-utils'
 
 const logConfigAndLastCandle = (candlesticks) => {
   const lastCandle = candlesticks[candlesticks.length - 1]
@@ -26,6 +27,12 @@ const logConfigAndLastCandle = (candlesticks) => {
   logger.info('===========================================')
 }
 
+const sendPostTradeNotification = (res) => {
+  const message = `💵💵*Mexjs*💵💵\n\n${res}`
+  return sendTelegramMessage(message)
+}
+
 export {
   logConfigAndLastCandle,
+  sendPostTradeNotification,
 }
