@@ -56,7 +56,7 @@ Rx.Observable
     }
   })
   .do(res => logConfigAndLastCandle(res))
-  .switchMap(klines => CANDLESTICKS = klines)
+  .do(klines => CANDLESTICKS = klines)
   .subscribe()
 
 /**
