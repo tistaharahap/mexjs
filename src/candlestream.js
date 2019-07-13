@@ -61,13 +61,13 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
           const adx = adxs
             .slice(i - i - i)
             .slice(-1)[0]
-          const rsi = rsis
-          .slice(i - i - i)
-          .slice(-1)[0]
+          const rsi14 = rsis
+            .slice(i - i - i)
+            .slice(-1)[0]
           klines[i]['adx'] = adx.adx
           klines[i]['pdi'] = adx.pdi
           klines[i]['mdi'] = adx.mdi
-          klines[i]['rsi14'] = rsi
+          klines[i]['rsi14'] = rsi14
           return klines[i]
         })
 
