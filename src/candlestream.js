@@ -1,7 +1,7 @@
 import Rx from '@reactivex/rxjs'
 import Decimal from 'decimal.js'
 import { BitmexAPI } from 'bitmex-node'
-import { UpFractal, DownFractal, VWMA } from './indicators'
+import { UpFractal, DownFractal, VWMA, AverageDirectionalIndex } from './indicators'
 import env from './env'
 
 /**
@@ -43,6 +43,14 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
       // Get VWMA data
       VWMA(closes, volumes, 34).forEach((v, n) => {
         klines[n+34-1]['vwma'] = new Decimal(v).toDecimalPlaces(1).toNumber()
+      })
+
+
+      // Get ADX data
+      AverageDirectionalIndex(closes, highs, lows, 34).forEach((v, n) => {
+        klines[n+67]['adx'] = v.adx
+        klines[n+67]['mdi'] = v.mdi
+        klines[n+67]['pdi'] = v.pdi
       })
 
       // Get up fractal data

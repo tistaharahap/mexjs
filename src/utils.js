@@ -15,7 +15,7 @@ const logConfigAndLastCandle = (candlesticks) => {
   logger.info(`Leverage: ${env.margin}`)
   logger.info(`TP in %: ${env.tpInPercentage}`)
   logger.info(`SL in %: ${env.slInPercentage}`)
-  logger.info(' ')
+  logger.info('<><><><><><><><><><><><><><><><><><><><><><')
   logger.info(`Timestamp: ${lastCandle.timestamp}`)
   logger.info(`Open: ${lastCandle.open}`)
   logger.info(`High: ${lastCandle.high}`)
@@ -26,6 +26,9 @@ const logConfigAndLastCandle = (candlesticks) => {
   logger.info(`Last Up Fractal: ${lastCandle.lastUpFractal}`)
   logger.info(`Last Down Fractal: ${lastCandle.lastDownFractal}`)
   logger.info(`VWMA: ${lastCandle.vwma}`)
+  logger.info(`ADX: ${lastCandle.adx}`)
+  logger.info(`MDI: ${lastCandle.mdi}`)
+  logger.info(`PDI: ${lastCandle.pdi}`)
   logger.info('===========================================')
 }
 
