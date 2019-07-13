@@ -27,3 +27,5 @@ class VMWALong extends Strategy {
       .greaterThanOrEqualTo(this.candlesticks[this.candlesticks.length - 1].lastFractal)
   }
 }
+
+export default VMWALong
