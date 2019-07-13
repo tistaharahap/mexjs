@@ -1,6 +1,6 @@
 import Rx from '@reactivex/rxjs'
 import { BitmexAPI } from 'bitmex-node'
-import { UpFractal, VWMA } from './indicators'
+import { UpFractal, DownFractal, VWMA } from './indicators'
 import env from './env'
 
 /**
@@ -39,10 +39,12 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
 
       let lastFractal = 0.0
 
+      // Get VWMA data
       VWMA(closes, volumes, 34).forEach((v, n) => {
         klines[n]['vwma'] = v
       })
 
+      // Get up fractal data
       UpFractal(highs).forEach((v, n) => {
         klines[n]['upFractal'] = v
         if (v !== null) {
@@ -51,6 +53,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
         klines[n]['lastUpFractal'] = lastFractal
       })
 
+      // Get down fractal data
       DownFractal(lows).forEach((v, n) => {
         klines[n]['downFractal'] = v
         if (v !== null) {
@@ -58,6 +61,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
         }
         klines[n]['lastDownFractal'] = lastFractal
       })
+
       return klines.slice(-50)
     })
     .do(klines => console.log(klines.slice(-1)))

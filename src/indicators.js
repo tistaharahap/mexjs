@@ -12,15 +12,16 @@ import { SMA } from 'technicalindicators'
 const VWMA = (closes, volumes, period) => {
   let closes_volumes = []
   closes.forEach((x, i) => {
-    closes_volumes.push(x*volumes[i])
+    closes_volumes.push(x * volumes[i])
   })
-  const closes_volumes_ma = SMA.calculate({period: period, values: closes_volumes})
-  const volumes_ma = SMA.calculate({period: period, values: volumes})
+  const closes_volumes_ma = SMA.calculate({ period: period, values: closes_volumes })
+  const volumes_ma = SMA.calculate({ period: period, values: volumes })
 
   let vwmas = []
-  closes_volumes_ma.forEach((x,i) => {
-    vwmas.push(x/volumes_ma[i])
+  closes_volumes_ma.forEach((x, i) => {
+    vwmas.push(x / volumes_ma[i])
   })
+
   return vwmas
 }
 
@@ -33,7 +34,6 @@ const VWMA = (closes, volumes, period) => {
  */
 const UpFractal = (highs) => {
   return highs
-    .map(x => parseFloat(x))
     .map((v, n) => {
       if (n + 3 > highs.length) {
         return null
@@ -51,7 +51,7 @@ const UpFractal = (highs) => {
       const up5 = ((highs[n - 6] < highs[n]) && (highs[n - 5] < highs[n]) && (highs[n - 4] === highs[n]) && (
         highs[n - 3] <= highs[n]) && (highs[n - 2] == highs[n]) && (highs[n - 1] <= highs[n]) && (
           highs[n + 1] < highs[n]) && (highs[n + 2] < highs[n]))
-        
+
       if (up1 || up2 || up3 || up4 || up5) {
         return v
       }
@@ -69,9 +69,8 @@ const UpFractal = (highs) => {
  */
 const DownFractal = (lows) => {
   return lows
-    .map(x => parseFloat(x))
     .map((v, n) => {
-      if (n + 3 > highs.length) {
+      if (n + 3 > lows.length) {
         return null
       }
 
@@ -87,7 +86,7 @@ const DownFractal = (lows) => {
       const low5 = ((lows[n - 6] > lows[n]) && (lows[n - 5] > lows[n]) && (lows[n - 4] === lows[n]) && (
         lows[n - 3] >= lows[n]) && (lows[n - 2] == lows[n]) && (lows[n - 1] >= lows[n]) && (
           lows[n + 1] > lows[n]) && (lows[n + 2] > lows[n]))
-      
+
       if (low1 || low2 || low3 || low4 || low5) {
         return v
       }
