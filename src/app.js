@@ -5,7 +5,8 @@ import Decimal from 'decimal.js'
 import env from './env'
 import { generateCandleStream } from './candlestream'
 import sendTelegramMessage from './telegram-utils'
-import { generateOrders, setMargin } from './orders'
+import { generateOrders, setMargin, cancelAllOrders } from './orders'
+import logger from './logger'
 
 
 let CANDLESTICKS = []
@@ -18,6 +19,9 @@ const bitmexClient = new BitMexPlus({
   apiKeySecret: env.apiSecret,
   testnet: env.useTestnet === 1,
 })
+
+cancelAllOrders(bitmexClient)
+  .subscribe(res => logger.info(`Successfully canceled all ${res.length} order(s)`))
 
 Rx.Observable
   .interval(env.candleIntervalInSeconds * 1000)
@@ -33,6 +37,30 @@ Rx.Observable
     if (FIRST_LAST_FRACTAL !== lastUpFractal) {
       WAIT_FOR_NEXT_FRACTAL = false
     }
+  })
+  .do((res) => {
+    const lastCandle = res[res.length - 1]
+
+    logger.info('===========================================')
+    logger.info(`MexJS v${env.version}`)
+    logger.info('===========================================')
+    logger.info(`Symbol: ${env.symbol}`)
+    logger.info(`TF: ${env.tf}`)
+    logger.info(`Use Testnet: ${env.useTestnet}`)
+    logger.info(`Order Qty: ${env.orderQuantity}`)
+    logger.info(`Leverage: ${env.margin}`)
+    logger.info(`TP in %: ${env.tpInPercentage}`)
+    logger.info(`SL in %: ${env.slInPercentage}`)
+    logger.info(' ')
+    logger.info(`Timestamp: ${lastCandle.timestamp}`)
+    logger.info(`Open: ${lastCandle.open}`)
+    logger.info(`High: ${lastCandle.high}`)
+    logger.info(`Low: ${lastCandle.low}`)
+    logger.info(`Close: ${lastCandle.close}`)
+    logger.info(`Up Fractal: ${lastCandle.upFractal}`)
+    logger.info(`Last Fractal: ${lastCandle.lastFractal}`)
+    logger.info(`VWMA: ${lastCandle.vwma}`)
+    logger.info('===========================================')
   })
   .switchMap(klines => CANDLESTICKS = klines)
   .subscribe()

@@ -101,7 +101,7 @@ const generateOrders = (bitmexClient, positionType) => {
             .filter(res => res[0].ordStatus === 'Filled' || res[0].ordStatus === 'Canceled' || res[1].ordStatus === 'Filled' || res[1].ordStatus === 'Canceled')
             .take(1)
             .do(() => console.log('Cancelling remaining active order'))
-            .switchMap(() => Rx.Observable.fromPromise(bitmexClient.makeRequest('DELETE', '/order/all', { symbol: env.symbol })))
+            .switchMap(() => cancelAllOrders(bitmexClient))
             .do((res) => console.log(`Canceled order id: ${res[0].orderID} / ${res[0].ordType}`))
             .map((res) => {
               return res[0].ordType === 'Stop' && res[0].ordStatus === 'Canceled' ? 'Opit BOSQUEEEE 💵💵💵💵💵💵' : 'Digebugin warga bosqueee'
@@ -111,7 +111,19 @@ const generateOrders = (bitmexClient, positionType) => {
     })
 }
 
+/**
+ * Cancel all outstanding orders
+ * 
+ * @param {BitMexPlus} bitmexClient - BitMexPlus client instance
+ * 
+ * @return {Rx.Observable}
+ */
+const cancelAllOrders = (bitmexClient) => {
+  return Rx.Observable.fromPromise(bitmexClient.makeRequest('DELETE', '/order/all', { symbol: env.symbol }))
+}
+
 export {
   generateOrders,
   setMargin,
+  cancelAllOrders,
 }

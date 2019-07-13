@@ -1,3 +1,5 @@
+import packageJson from '../package.json'
+
 const env = {
   apiKey: process.env.API_KEY || 'API_KEY',
   apiSecret: process.env.API_SECRET || 'API_SECRET',
@@ -9,6 +11,7 @@ const env = {
   useTestnet: process.env.USE_TESTNET || 0,
   orderQuantity: process.env.ORDER_QUANTITY || 50,
   margin: process.env.MARGIN || 50,
+  version: packageJson.version,
 }
 
 export default env
