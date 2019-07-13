@@ -22,7 +22,7 @@ class NektrabarLong extends Strategy {
     ).dividedBy(3)
 
     return ohc3
-      .greaterThan(lastCandle.lastFractal)
+      .greaterThan(lastCandle.lastUpFractal)
   }
 
   /**

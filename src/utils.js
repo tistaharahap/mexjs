@@ -22,7 +22,9 @@ const logConfigAndLastCandle = (candlesticks) => {
   logger.info(`Low: ${lastCandle.low}`)
   logger.info(`Close: ${lastCandle.close}`)
   logger.info(`Up Fractal: ${lastCandle.upFractal}`)
-  logger.info(`Last Fractal: ${lastCandle.lastFractal}`)
+  logger.info(`Down Fractal: ${lastCandle.downFractal}`)
+  logger.info(`Last Up Fractal: ${lastCandle.lastUpFractal}`)
+  logger.info(`Last Down Fractal: ${lastCandle.lastDownFractal}`)
   logger.info(`VWMA: ${lastCandle.vwma}`)
   logger.info('===========================================')
 }

@@ -45,13 +45,13 @@ Rx.Observable
   .startWith(0)
   .switchMap(() => generateCandleStream(env.apiKey, env.apiSecret, env.symbol, env.tf, 300))
   .do((res) => {
-    const lastUpFractal = res[res.length - 1].lastUpFractal
+    const lastDownFractal = res[res.length - 1].lastDownFractal
 
     if (FIRST_LAST_FRACTAL === null) {
-      FIRST_LAST_FRACTAL = lastUpFractal
+      FIRST_LAST_FRACTAL = lastDownFractal
     }
 
-    if (FIRST_LAST_FRACTAL !== lastUpFractal) {
+    if (FIRST_LAST_FRACTAL !== lastDownFractal) {
       WAIT_FOR_NEXT_FRACTAL = false
     }
   })
@@ -74,7 +74,7 @@ const socket$ = Rx.Observable.webSocket(opts)
   // Filters for management of feeds and states
   .filter(() => CANDLESTICKS.length > 0)
   .filter(data => data.table === 'trade' && data.action == 'insert' && data.data.length > 0)
-  .filter(() => LAST_ORDER_FRACTAL === null || LAST_ORDER_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastFractal)
+  .filter(() => LAST_ORDER_FRACTAL === null || LAST_ORDER_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastDownFractal)
   .filter(() => !WAIT_FOR_NEXT_FRACTAL)
 
   // The Strategy we are using
@@ -83,7 +83,7 @@ const socket$ = Rx.Observable.webSocket(opts)
   // Let's make it happen!
   .switchMap(() => setMargin(bitmexClient))
   .switchMap(() => {
-    LAST_ORDER_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastUpFractal
+    LAST_ORDER_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastDownFractal
     return generateOrders(bitmexClient, 'short')
   })
 
