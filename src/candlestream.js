@@ -1,7 +1,7 @@
 import Rx from '@reactivex/rxjs'
 import { BitmexAPI } from 'bitmex-node'
 import { UpFractal, VWMA } from './indicators'
-import { ADX } from 'technicalindicators'
+import { ADX, RSI } from 'technicalindicators'
 import env from './env'
 
 /**
@@ -42,15 +42,10 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
 
       const vwmas = VWMA(closes, volumes, 34)
       const upFractals = UpFractal(highs)
-      const adxs = new ADX({
-        high: highs,
-        low: lows,
-        close: closes,
-        period: 34,
-      }).getResult()
-      console.log(vwmas.length, upFractals.length, adxs.length)
+      const adxs = ADX.calculate({ high: highs, low: lows, close: closes, period: 34 })
+      const rsis = RSI.calculate({ values: closes, period: 14 })
 
-      adxs.forEach((v, n) => {
+      vwmas.forEach((v, n) => {
         klines[n]['upFractal'] = v
         if (v !== null) {
           lastFractal = upFractals[n]
@@ -58,12 +53,25 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
 
         klines[n]['lastFractal'] = lastFractal
         klines[n]['vwma'] = vwmas[n]
-        klines[n]['adx'] = v.adx ? v.adx : null
-        klines[n]['pdi'] = v.pdi ? v.pdi : null
-        klines[n]['mdi'] = v.mdi ? v.mdi : null
       })
 
-      return klines.slice(-10)
+      klines = klines
+        .slice(-10)
+        .map((v, i) => {
+          const adx = adxs
+            .slice(i - i - i)
+            .slice(-1)[0]
+          const rsi = rsis
+          .slice(i - i - i)
+          .slice(-1)[0]
+          klines[i]['adx'] = adx.adx
+          klines[i]['pdi'] = adx.pdi
+          klines[i]['mdi'] = adx.mdi
+          klines[i]['rsi14'] = rsi
+          return klines[i]
+        })
+
+      return klines
     })
     .catch(() => Rx.Observable.from([]))
 }
