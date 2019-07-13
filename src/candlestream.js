@@ -47,7 +47,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
 
       vwmas.forEach((v, n) => {
         klines[n]['upFractal'] = v
-        if (v !== null) {
+        if (upFractals[n] !== null) {
           lastFractal = upFractals[n]
         }
 
