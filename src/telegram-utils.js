@@ -1,5 +1,5 @@
 import Telegraf from 'telegraf'
-import Rx from 'rxjs'
+import Rx from '@reactivex/rxjs'
 
 const sendTelegramMessage = (message) => {
   const chatId = '-1001351609280'

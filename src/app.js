@@ -1,24 +1,44 @@
 import Rx from '@reactivex/rxjs'
 import WebSocket from 'websocket'
+import { BitMexPlus } from 'bitmex-plus'
 import Decimal from 'decimal.js'
-import numeral from 'numeral'
 import env from './env'
 import { generateCandleStream } from './candlestream'
 import sendTelegramMessage from './telegram-utils'
+import { generateOrders, setMargin } from './orders'
+
 
 let CANDLESTICKS = []
+let FIRST_LAST_FRACTAL = null
 let LAST_ORDER_FRACTAL = null
-const NUMERAL_FORMAT = '0,0.00'
+let WAIT_FOR_NEXT_FRACTAL = true
+
+const bitmexClient = new BitMexPlus({
+  apiKeyID: env.apiKey,
+  apiKeySecret: env.apiSecret,
+  testnet: env.useTestnet === 1,
+})
 
 Rx.Observable
   .interval(env.candleIntervalInSeconds * 1000)
   .startWith(0)
   .switchMap(() => generateCandleStream(env.apiKey, env.apiSecret, env.symbol, env.tf, 300))
+  .do((res) => {
+    const lastFractal = res[res.length - 1].lastFractal
+
+    if (FIRST_LAST_FRACTAL === null) {
+      FIRST_LAST_FRACTAL = lastFractal
+    }
+
+    if (FIRST_LAST_FRACTAL !== lastFractal) {
+      WAIT_FOR_NEXT_FRACTAL = false
+    }
+  })
   .switchMap(klines => CANDLESTICKS = klines)
   .subscribe()
 
 const opts = {
-  url: 'wss://www.bitmex.com/realtime',
+  url: env.useTestnet === 1 ? 'wss://testnet.bitmex.com/realtime' : 'wss://www.bitmex.com/realtime',
   WebSocketCtor: WebSocket.w3cwebsocket,
 }
 const socket$ = Rx.Observable.webSocket(opts)
@@ -62,15 +82,16 @@ const socket$ = Rx.Observable.webSocket(opts)
       .lessThanOrEqualTo(lastCandle.vwma)
   })
 
-  // We got a winner here!
-  .switchMap((feed) => {
-    LAST_ORDER_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastFractal
-    const lastPrice = numeral(feed.data[0].price).format(NUMERAL_FORMAT)
-    const lastFractal = numeral(LAST_ORDER_FRACTAL).format(NUMERAL_FORMAT)
-    const lastVwma = numeral(CANDLESTICKS[CANDLESTICKS.length - 1].vwma).format(NUMERAL_FORMAT)
-    
-    const message = `💵💵*Mexjs Breakout Bot*💵💵\n\nLONG! LONG! LONG!\nLast Price: ${lastPrice}\nLast Fractal: ${lastFractal}\nLast VWMA: ${lastVwma}\n\n💰BUY💰BUY💰BUY💰`
+  // Last line of defense, only trade if the wait is over
+  .filter(() => !WAIT_FOR_NEXT_FRACTAL)
 
+  .switchMap(() => setMargin(bitmexClient))
+  .switchMap(() => {
+    LAST_ORDER_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastFractal
+    return generateOrders(bitmexClient, 'long')
+  })
+  .switchMap((res) => {
+    const message = `💵💵*Mexjs*💵💵\n\n${res}`
     return sendTelegramMessage(message)
   })
 
