@@ -4,6 +4,13 @@ const defaultFormat = winston.format.printf((info) => {
   return `${info.timestamp} [${info.level}]: ${info.message}`;
 });
 
+const prettyJson = winston.format.printf(info => {
+  if (info.message.constructor === Object) {
+    info.message = JSON.stringify(info.message, null, 4)
+  }
+  return `${info.timestamp} [${info.level}]: ${info.message}`;
+})
+
 const createDevLogger = () => {
   return winston.createLogger({
     level: "silly",
@@ -13,30 +20,13 @@ const createDevLogger = () => {
           winston.format.timestamp(),
           winston.format.colorize(),
           defaultFormat,
+          prettyJson,
         ),
       }),
     ],
   });
 };
 
-const createProdLogger = () => {
-  return winston.createLogger({
-    level: "info",
-    transports: [
-      new winston.transports.Console({
-        format: winston.format.combine(
-          winston.format.timestamp(),
-          defaultFormat,
-        ),
-      }),
-    ],
-  });
-};
+const logger = createDevLogger()
 
-const isRunningInProduction = () => {
-  return process.env.NODE_ENV && process.env.NODE_ENV.toUpperCase() === "PRODUCTION";
-};
-
-export {
-  createDevLogger
-}
+export default logger

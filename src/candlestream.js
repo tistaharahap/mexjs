@@ -12,7 +12,7 @@ import env from './env'
  * @param {string} binSize  - the timeframe for your candles, valid options are: 1m | 5m | 1h | 1d
  * @param {number} count - The number of candles you want returned
  * 
- * @return {Rx.Observable}
+ * @return {Rx.Observable<Array>}
  */
 const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
   const client = new BitmexAPI({
@@ -51,7 +51,6 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
 
       return klines.slice(-10)
     })
-    .do(klines => console.log(klines.slice(-1)))
     .catch(() => Rx.Observable.from([]))
 }
 
