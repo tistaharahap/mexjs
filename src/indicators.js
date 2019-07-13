@@ -1,3 +1,5 @@
+import { SMA } from 'technicalindicators'
+
 /**
  * Generate Volume Weighted Moving Average values for given time series
  * 
@@ -8,28 +10,18 @@
  * @return {Array}
  */
 const VWMA = (closes, volumes, period) => {
-  return closes.map((v, i) => {
-    if (i < period) {
-      return (v * volumes[i]) / volumes[i]
-    }
-
-    const firstIndex = i - period
-    const closesWithPeriod = closes
-      .slice(firstIndex,i)
-    const volsWithPeriod = volumes
-      .slice(firstIndex,i)
-    const closesValue = closesWithPeriod
-      .reduce((x, y, i) => {
-        const cv = y * volsWithPeriod[i]
-        return x + cv
-      }, 0)
-    const volsValue = volsWithPeriod
-      .reduce((x, y) => x + y, 0)
-
-    const value = closesValue / volsValue
-
-    return value
+  let closes_volumes = []
+  closes.forEach((x, i) => {
+    closes_volumes.push(x*volumes[i])
   })
+  const closes_volumes_ma = SMA.calculate({period: period, values: closes_volumes})
+  const volumes_ma = SMA.calculate({period: period, values: volumes})
+
+  let vwmas = []
+  closes_volumes_ma.forEach((x,i) => {
+    vwmas.push(x/volumes_ma[i])
+  })
+  return vwmas
 }
 
 /**

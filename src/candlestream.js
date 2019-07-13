@@ -32,24 +32,33 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
       return klines
     })
     .map((klines) => {
-      const highs = klines.map(x => x.high)
-      const closes = klines.map(x => x.close)
-      const volumes = klines.map(x => x.volume)
+      const highs = klines.map(x => parseFloat(x.high))
+      const lows = klines.map(x => parseFloat(x.low))
+      const closes = klines.map(x => parseFloat(x.close))
+      const volumes = klines.map(x => parseFloat(x.volume))
 
       let lastFractal = 0.0
 
       VWMA(closes, volumes, 34).forEach((v, n) => {
         klines[n]['vwma'] = v
       })
+
       UpFractal(highs).forEach((v, n) => {
         klines[n]['upFractal'] = v
         if (v !== null) {
           lastFractal = v
         }
-        klines[n]['lastFractal'] = lastFractal
+        klines[n]['lastUpFractal'] = lastFractal
       })
 
-      return klines.slice(-10)
+      DownFractal(lows).forEach((v, n) => {
+        klines[n]['downFractal'] = v
+        if (v !== null) {
+          lastFractal = v
+        }
+        klines[n]['lastDownFractal'] = lastFractal
+      })
+      return klines.slice(-50)
     })
     .do(klines => console.log(klines.slice(-1)))
     .catch(() => Rx.Observable.from([]))

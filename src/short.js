@@ -24,13 +24,13 @@ Rx.Observable
   .startWith(0)
   .switchMap(() => generateCandleStream(env.apiKey, env.apiSecret, env.symbol, env.tf, 300))
   .do((res) => {
-    const lastUpFractal = res[res.length - 1].lastUpFractal
+    const lastDownFractal = res[res.length - 1].lastDownFractal
 
     if (FIRST_LAST_FRACTAL === null) {
-      FIRST_LAST_FRACTAL = lastUpFractal
+      FIRST_LAST_FRACTAL = lastDownFractal
     }
 
-    if (FIRST_LAST_FRACTAL !== lastUpFractal) {
+    if (FIRST_LAST_FRACTAL !== lastDownFractal) {
       WAIT_FOR_NEXT_FRACTAL = false
     }
   })
@@ -49,37 +49,33 @@ const socket$ = Rx.Observable.webSocket(opts)
   .filter(data => data.table === 'trade' && data.action == 'insert' && data.data.length > 0)
 
   // Only interested if the fractal is not the last order's fractal
-  .filter(() => LAST_ORDER_FRACTAL === null || LAST_ORDER_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastUpFractal)
+  .filter(() => LAST_ORDER_FRACTAL === null || LAST_ORDER_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastDownFractal)
 
-  // Only interested with new trades with a price above the last up fractal
-  .filter(data => new Decimal(data.data[0].price)
-    .greaterThanOrEqualTo(CANDLESTICKS[CANDLESTICKS.length - 1].lastUpFractal))
-
-  // Only intrested with fractals that are less than OHC3
+  // Only intrested with fractals that are less than OLC3 (Breakout)
   .filter(() => {
     const lastCandle = CANDLESTICKS[CANDLESTICKS.length - 1]
-    const ohc3 = (
+    const olc3 = (
       new Decimal(lastCandle.open)
-        .add(lastCandle.high)
+        .add(lastCandle.low)
         .add(lastCandle.close)
     ).dividedBy(3)
 
-    return ohc3
-      .greaterThan(lastCandle.lastUpFractal)
+    return olc3
+      .lessThan(lastCandle.lastDownFractal)
   })
 
-  // Only interested with green candles
+  // Only interested with red candles
   .filter(() => {
     const lastCandle = CANDLESTICKS[CANDLESTICKS.length - 1]
-    return new Decimal(lastCandle.close)
-      .greaterThan(lastCandle.open)
+    return new Decimal(lastCandle.open)
+      .greaterThan(lastCandle.close)
   })
 
   // Only interested with the right VWMA
   .filter(() => {
     const lastCandle = CANDLESTICKS[CANDLESTICKS.length - 1]
-    return new Decimal(lastCandle.high)
-      .lessThanOrEqualTo(lastCandle.vwma)
+    return new Decimal(lastCandle.low)
+      .greaterThanOrEqualTo(lastCandle.vwma)
   })
 
   // Last line of defense, only trade if the wait is over
@@ -87,8 +83,8 @@ const socket$ = Rx.Observable.webSocket(opts)
 
   .switchMap(() => setMargin(bitmexClient))
   .switchMap(() => {
-    LAST_ORDER_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastUpFractal
-    return generateOrders(bitmexClient, 'long')
+    LAST_ORDER_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastDownFractal
+    return generateOrders(bitmexClient, 'short')
   })
   .switchMap((res) => {
     const message = `💵💵*Mexjs*💵💵\n\n${res}`
