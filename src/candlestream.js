@@ -52,7 +52,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
         }
 
         klines[n]['lastFractal'] = lastFractal
-        klines[n]['vwma'] = vwmas[n]
+        klines[n]['vwma'] = v
       })
 
       klines = klines
