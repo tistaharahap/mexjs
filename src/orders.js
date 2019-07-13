@@ -72,12 +72,9 @@ const generateOrders = (bitmexClient, positionType) => {
       const slOpts = {
         symbol: env.symbol,
         side: positionType === 'long' ? 'Sell' : 'Buy',
-        orderQty: env.orderQuantity,
-        execInst: 'LastPrice,Close',
-        ordType: 'StopLimit',
-        timeInForce: 'GoodTillCancel',
+        execInst: 'IndexPrice,Close',
+        ordType: 'Stop',
         stopPx: slTriggerPrice,
-        price: slPrice,
       }
 
       const orders = [
@@ -107,7 +104,7 @@ const generateOrders = (bitmexClient, positionType) => {
             .switchMap(() => Rx.Observable.fromPromise(bitmexClient.makeRequest('DELETE', '/order/all', { symbol: env.symbol })))
             .do((res) => console.log(`Canceled order id: ${res[0].orderID} / ${res[0].ordType}`))
             .map((res) => {
-              return res[0].ordType === 'StopLimit' ? 'Opit BOSQUEEEE 💵💵💵💵💵💵' : 'Digebugin warga bosqueee'
+              return res[0].ordType === 'Stop' && res[0].ordStatus === 'Canceled' ? 'Opit BOSQUEEEE 💵💵💵💵💵💵' : 'Digebugin warga bosqueee'
             })
         })
         .observeOn(Rx.Scheduler.async)
