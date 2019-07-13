@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon --watch src --exec babel-node src/app.js",
     "long": "nodemon --watch src --exec babel-node src/long.js",
-    "short": "nodemon --watch src --exec babel-node src/short.js",
+    "short": "nodemon --watch src --exec babel-node src/short.js"
   },
   "author": "Batista Harahap",
   "license": "ISC",

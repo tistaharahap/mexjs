@@ -100,4 +100,4 @@ socket$
     res => console.log(res),
   )
 socket$
-  .next(JSON.stringify({ op: 'subscribe', args: `trade:${env.symbol}`}))
+  .next(JSON.stringify({ op: 'subscribe', args: `trade:${env.symbol}` }))
