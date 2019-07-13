@@ -1,8 +1,8 @@
 import packageJson from '../package.json'
 
 const env = {
-  apiKey: process.env.API_KEY || 'API_KEY',
-  apiSecret: process.env.API_SECRET || 'API_SECRET',
+  apiKey: process.env.API_KEY || 'aK-fz1BnkySpjH1hUh3eIKva',
+  apiSecret: process.env.API_SECRET || '2wOWrzZZQXn9HcbBS5G7xS42bw3OCA1ectCzrA9TcWt5ABek',
   candleIntervalInSeconds: process.env.CANDLE_INTERVAL_IN_SECONDS || 10,
   tf: process.env.TF || '5m',
   symbol: process.env.SYMBOL || 'XBTUSD',
