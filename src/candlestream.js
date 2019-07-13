@@ -56,7 +56,6 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
       })
 
       klines = klines
-        .slice(-10)
         .map((v, i) => {
           const adx = adxs
             .slice(i - i - i)
