@@ -3,48 +3,48 @@ import Decimal from 'decimal.js'
 
 class NektrabarLong extends Strategy {
   filter() {
-    return this.fractalsLessThanOHC3()
-      && this.greenCandles()
-      && this.vwmaAbove()
+    return this.fractalsGreaterThanOLC3()
+      && this.redCandles()
+      && this.vwmaBelow()
   }
 
   /**
-   * The last candles OHC3 must be greater than or above the last fractal
+   * The last candles OLC3 must be less than or below the last fractal
    * 
    * @return {boolean}
    */
-  fractalsLessThanOHC3() {
+  fractalsGreaterThanOLC3() {
     const lastCandle = this.candlesticks[this.candlesticks.length - 1]
-    const ohc3 = (
+    const olc3 = (
       new Decimal(lastCandle.open)
-        .add(lastCandle.high)
+        .add(lastCandle.low)
         .add(lastCandle.close)
     ).dividedBy(3)
 
-    return ohc3
-      .greaterThan(lastCandle.lastFractal)
+    return olc3
+      .lessThan(lastCandle.lastFractal)
   }
 
   /**
-   * The last candle must be green
+   * The last candle must be red
    * 
    * @return {boolean}
    */
-  greenCandles() {
+  redCandles() {
     const lastCandle = this.candlesticks[this.candlesticks.length - 1]
-    return new Decimal(lastCandle.close)
-      .greaterThan(lastCandle.open)
+    return new Decimal(lastCandle.open)
+      .greaterThan(lastCandle.close)
   }
 
   /**
-   * VMWA must be less or equal to last candle's high
+   * VMWA must be less or equal to last candle's low
    * 
    * @return {boolean}
    */
-  vwmaAbove() {
+  vwmaBelow() {
     const lastCandle = this.candlesticks[this.candlesticks.length - 1]
-    return new Decimal(lastCandle.high)
-      .lessThanOrEqualTo(lastCandle.vwma)
+    return new Decimal(lastCandle.low)
+      .greaterThanOrEqualTo(lastCandle.vwma)
   }
 }
 
