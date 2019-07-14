@@ -1,7 +1,7 @@
 import Rx from '@reactivex/rxjs'
 import Decimal from 'decimal.js'
 import { BitmexAPI } from 'bitmex-node'
-import { UpFractal, DownFractal, VWMA, AverageDirectionalIndex } from './indicators'
+import { UpFractal, DownFractal, VWMA, AverageDirectionalIndex, RelativeStrengthIndex } from './indicators'
 import env from './env'
 
 /**
@@ -39,18 +39,25 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
       const volumes = klines.map(x => parseFloat(x.volume))
 
       let lastFractal = 0.0
+      const VWMAPeriod = 34
+      const ADXPeriod = 14
+      const RSIPeriod = 14
 
       // Get VWMA data
-      VWMA(closes, volumes, 34).forEach((v, n) => {
-        klines[n+34-1]['vwma'] = new Decimal(v).toDecimalPlaces(1).toNumber()
+      VWMA(closes, volumes, VWMAPeriod).forEach((v, n) => {
+        klines[n + VWMAPeriod - 1]['vwma'] = new Decimal(v).toDecimalPlaces(1).toNumber()
       })
 
-
       // Get ADX data
-      AverageDirectionalIndex(closes, highs, lows, 34).forEach((v, n) => {
-        klines[n+67]['adx'] = v.adx
-        klines[n+67]['mdi'] = v.mdi
-        klines[n+67]['pdi'] = v.pdi
+      AverageDirectionalIndex(closes, highs, lows, ADXLength).forEach((v, n) => {
+        klines[n + (2 * ADXPeriod) - 1]['adx'] = v.adx
+        klines[n + (2 * ADXPeriod) - 1]['mdi'] = v.mdi
+        klines[n + (2 * ADXPeriod) - 1]['pdi'] = v.pdi
+      })
+
+      // Get RSI data
+      RelativeStrengthIndex(closes, RSIPeriod).forEach((v, n) => {
+        klines[n + RSIPeriod - 1]['rsi'] = v
       })
 
       // Get up fractal data

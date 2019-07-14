@@ -5,7 +5,7 @@ import env from './env'
 import { generateCandleStream } from './candlestream'
 import { generateOrders, setMargin, cancelAllOrders } from './orders'
 import logger from './logger'
-import { NektrabarLong } from './strategies'
+import { VWMALong } from './strategies'
 import { logConfigAndLastCandle, sendPostTradeNotification } from './utils'
 
 /**
@@ -78,7 +78,7 @@ const socket$ = Rx.Observable.webSocket(opts)
   .filter(() => !WAIT_FOR_NEXT_FRACTAL)
 
   // The Strategy we are using
-  .filter((feed) => new NektrabarLong(CANDLESTICKS, feed).filter())
+  .filter((feed) => new VWMALong(CANDLESTICKS, feed).filter())
 
   // Let's make it happen!
   .switchMap(() => setMargin(bitmexClient))
@@ -96,4 +96,4 @@ socket$
     res => logger.info(res),
   )
 socket$
-  .next(JSON.stringify({ op: 'subscribe', args: `trade:${env.symbol}`}))
+  .next(JSON.stringify({ op: 'subscribe', args: `trade:${env.symbol}` }))

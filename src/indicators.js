@@ -1,4 +1,4 @@
-import { SMA, ADX } from 'technicalindicators'
+import { SMA, ADX, RSI } from 'technicalindicators'
 
 /**
  * Generate Volume Weighted Moving Average values for given time series
@@ -37,6 +37,20 @@ const VWMA = (closes, volumes, period) => {
  */
 const AverageDirectionalIndex = (closes, highs, lows, period) => {
   return ADX.calculate({ period: period, high: highs, low: lows, close: closes })
+}
+
+/**
+ * Generate Average Directional Index values for given time series
+ * 
+ * @param {Array} closes - Candle closes
+ * @param {Array} highs - Candle highs
+ * @param {Array} lows - Candle lows
+ * @param {Number} period  - The period of the MA
+ * 
+ * @return {Array}
+ */
+const RelativeStrengthIndex = (closes, period) => {
+  return RSI.calculate({ period: period, values: closes })
 }
 
 /**
@@ -114,4 +128,5 @@ export {
   UpFractal,
   DownFractal,
   AverageDirectionalIndex,
+  RelativeStrengthIndex,
 }

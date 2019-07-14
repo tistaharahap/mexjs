@@ -29,6 +29,7 @@ const logConfigAndLastCandle = (candlesticks) => {
   logger.info(`ADX: ${lastCandle.adx}`)
   logger.info(`MDI: ${lastCandle.mdi}`)
   logger.info(`PDI: ${lastCandle.pdi}`)
+  logger.info(`RSI: ${lastCandle.rsi}`)
   logger.info('===========================================')
 }
 
