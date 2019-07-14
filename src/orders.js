@@ -18,6 +18,11 @@ const setMargin = (bitmexClient) => {
     leverage: env.margin,
   }
   return Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', '/position/leverage', opts))
+    .observeOn(Rx.Scheduler.asap)
+    .catch((err) => {
+      logger.error(`Error setting leverage to Bitmex: ${err.stack}`)
+      return Rx.Observable.empty()
+    })
 }
 
 /**
