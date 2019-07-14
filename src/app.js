@@ -66,7 +66,7 @@ Rx.Observable
       if (FIRST_LAST_UP_FRACTAL === null) {
         FIRST_LAST_UP_FRACTAL = lastCandle.lastUpFractal
       }
-      if (FIRST_LAST_UP_FRACTAL !== lastUpFractal) {
+      if (FIRST_LAST_UP_FRACTAL !== lastCandle.lastUpFractal) {
         WAIT_FOR_NEXT_UP_FRACTAL = false
       }
     } else if (env.strategy.endsWith('short')) {
