@@ -60,20 +60,20 @@ Rx.Observable
   .startWith(0)
   .switchMap(() => generateCandleStream(env.apiKey, env.apiSecret, env.symbol, env.tf, 300))
   .do((res) => {
-    const lastFractal = res[res.length - 1].lastFractal
-
+    const lastCandle = res[res.length - 1]
+    
     if (env.strategy.endsWith('long')) {
       if (FIRST_LAST_UP_FRACTAL === null) {
-        FIRST_LAST_UP_FRACTAL = lastFractal.up
+        FIRST_LAST_UP_FRACTAL = lastCandle.lastUpFractal
       }
-      if (FIRST_LAST_UP_FRACTAL !== lastFractal.up) {
+      if (FIRST_LAST_UP_FRACTAL !== lastUpFractal) {
         WAIT_FOR_NEXT_UP_FRACTAL = false
       }
     } else if (env.strategy.endsWith('short')) {
       if (FIRST_LAST_DOWN_FRACTAL === null) {
-        FIRST_LAST_DOWN_FRACTAL = lastFractal.down
+        FIRST_LAST_DOWN_FRACTAL = lastCandle.lastDownFractal
       }
-      if (FIRST_LAST_DOWN_FRACTAL !== lastFractal.down) {
+      if (FIRST_LAST_DOWN_FRACTAL !== lastCandle.lastDownFractal) {
         WAIT_FOR_NEXT_DOWN_FRACTAL = false
       } 
     }
@@ -99,8 +99,8 @@ const socket$ = Rx.Observable.webSocket(opts)
   .filter(data => data.table === 'trade' && data.action == 'insert' && data.data.length > 0)
   .filter(() => {
     if (env.strategy.endsWith('long')) {
-      return LAST_ORDER_UP_FRACTAL === null || LAST_ORDER_UP_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastFractal.up
-    } else if (env.strategy.endsWith(short)) {
+      return LAST_ORDER_UP_FRACTAL === null || LAST_ORDER_UP_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastUpFractal
+    } else if (env.strategy.endsWith('short')) {
       return LAST_ORDER_DOWN_FRACTAL === null || LAST_ORDER_DOWN_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastFractal.down
     } else {
       return false
@@ -123,10 +123,10 @@ const socket$ = Rx.Observable.webSocket(opts)
   .switchMap(() => setMargin(bitmexClient))
   .switchMap(() => {
     if (env.strategy.endsWith('long')) {
-      LAST_ORDER_UP_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastFractal.up
+      LAST_ORDER_UP_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastUpFractal
       return generateOrders(bitmexClient, 'long')
     } else if (env.strategy.endsWith('short')) {
-      LAST_ORDER_DOWN_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastFractal.down
+      LAST_ORDER_DOWN_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastDownFractal
       return generateOrders(bitmexClient, 'short')
     } else {
       return Rx.Observable.empty()
