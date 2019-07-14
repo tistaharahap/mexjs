@@ -44,6 +44,10 @@ const generateOrders = (bitmexClient, positionType) => {
   
   return Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', '/order', marketOrderOpts))
     .observeOn(Rx.Scheduler.asap)
+    .catch((err) => {
+      logger.error(`Error setting leverage to Bitmex: ${err.stack}`)
+      return Rx.Observable.empty()
+    })
     .switchMap((marketOrder) => {
       const entryPrice = new Decimal(marketOrder.avgPx)
 
