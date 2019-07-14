@@ -5,7 +5,8 @@ class NektrabarShort extends Strategy {
   filter() {
     return this.olcUnder() &&
       this.redCandle() &&
-      this.newTradesWithPricesLowerTheLastFractal()
+      this.newTradesWithPricesLowerTheLastFractal() &&
+      this.vwmaAbove()
   }
 
   /**
@@ -45,6 +46,17 @@ class NektrabarShort extends Strategy {
     const lastCandle = this.candlesticks[this.candlesticks.length - 1]
     return new Decimal(lastCandle.close)
       .lessThan(lastCandle.open)
+  }
+
+  /**
+   * VMWA must be above or equal to last candle's low
+   * 
+   * @return {boolean}
+   */
+  vwmaAbove() {
+    const lastCandle = this.candlesticks[this.candlesticks.length - 1]
+    return new Decimal(lastCandle.low)
+      .greaterThanOrEqualTo(lastCandle.vmwa)
   }
 }
 
