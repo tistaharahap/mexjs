@@ -9,7 +9,7 @@ const env = {
   tpInPercentage: parseFloat(process.env.TP_IN_PERCENTAGE || 0.5),
   slInPercentage: parseFloat(process.env.SL_IN_PERCENTAGE || 0.5),
   useTestnet: process.env.USE_TESTNET || 0,
-  orderQuantity: process.env.ORDER_QUANTITY || 50,
+  orderQuantity: process.env.ORDER_QUANTITY || 200,
   margin: process.env.MARGIN || 50,
   version: packageJson.version,
 }

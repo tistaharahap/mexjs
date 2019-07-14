@@ -49,7 +49,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
       })
 
       // Get ADX data
-      AverageDirectionalIndex(closes, highs, lows, ADXLength).forEach((v, n) => {
+      AverageDirectionalIndex(closes, highs, lows, ADXPeriod).forEach((v, n) => {
         klines[n + (2 * ADXPeriod) - 1]['adx'] = v.adx
         klines[n + (2 * ADXPeriod) - 1]['mdi'] = v.mdi
         klines[n + (2 * ADXPeriod) - 1]['pdi'] = v.pdi
@@ -57,7 +57,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
 
       // Get RSI data
       RelativeStrengthIndex(closes, RSIPeriod).forEach((v, n) => {
-        klines[n + RSIPeriod - 1]['rsi'] = v
+        klines[n + RSIPeriod]['rsi'] = v
       })
 
       // Get up fractal data

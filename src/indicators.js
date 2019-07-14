@@ -40,12 +40,10 @@ const AverageDirectionalIndex = (closes, highs, lows, period) => {
 }
 
 /**
- * Generate Average Directional Index values for given time series
+ * Generate Relative Strength Index values for given time series
  * 
  * @param {Array} closes - Candle closes
- * @param {Array} highs - Candle highs
- * @param {Array} lows - Candle lows
- * @param {Number} period  - The period of the MA
+ * @param {Number} period  - The period of the RSI
  * 
  * @return {Array}
  */
