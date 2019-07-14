@@ -9,27 +9,42 @@ import { getStrategyByName } from './strategies'
 import { logConfigAndLastCandle, sendPostTradeNotification } from './utils'
 
 /**
- * @type {Array} name A name to use.
+ * @type {Array} Candlesticks state var
  */
 let CANDLESTICKS = []
 
 /**
- * @type {number} name A name to use.
+ * @type {number} The first last up fractal
  */
-let FIRST_LAST_FRACTAL = null
+let FIRST_LAST_UP_FRACTAL = null
 
 /**
- * @type {number} name A name to use.
+ * @type {number} The first last down fractal
  */
-let LAST_ORDER_FRACTAL = null
+let FIRST_LAST_DOWN_FRACTAL = null
 
 /**
- * @type {boolean} name A name to use.
+ * @type {number} Last order's up fractal
  */
-let WAIT_FOR_NEXT_FRACTAL = true
+let LAST_ORDER_UP_FRACTAL = null
 
 /**
- * @type {BitMexPlus} name A name to use.
+ * @type {number} Last order's down fractal
+ */
+let LAST_ORDER_DOWN_FRACTAL = null
+
+/**
+ * @type {boolean} State var to wait for next up fractal
+ */
+let WAIT_FOR_NEXT_UP_FRACTAL = true
+
+/**
+ * @type {boolean} State var to wait for next down fractal
+ */
+let WAIT_FOR_NEXT_DOWN_FRACTAL = true
+
+/**
+ * @type {BitMexPlus} BitMexPlus client for REST calls
  */
 const bitmexClient = new BitMexPlus({
   apiKeyID: env.apiKey,
@@ -47,12 +62,20 @@ Rx.Observable
   .do((res) => {
     const lastFractal = res[res.length - 1].lastFractal
 
-    if (FIRST_LAST_FRACTAL === null) {
-      FIRST_LAST_FRACTAL = lastFractal
-    }
-
-    if (FIRST_LAST_FRACTAL !== lastFractal) {
-      WAIT_FOR_NEXT_FRACTAL = false
+    if (env.strategy.endsWith('long')) {
+      if (FIRST_LAST_UP_FRACTAL === null) {
+        FIRST_LAST_UP_FRACTAL = lastFractal.up
+      }
+      if (FIRST_LAST_UP_FRACTAL !== lastFractal.up) {
+        WAIT_FOR_NEXT_UP_FRACTAL = false
+      }
+    } else if (env.strategy.endsWith('short')) {
+      if (FIRST_LAST_DOWN_FRACTAL === null) {
+        FIRST_LAST_DOWN_FRACTAL = lastFractal.down
+      }
+      if (FIRST_LAST_DOWN_FRACTAL !== lastFractal.down) {
+        WAIT_FOR_NEXT_DOWN_FRACTAL = false
+      } 
     }
   })
   .do(res => logConfigAndLastCandle(res))
@@ -74,8 +97,24 @@ const socket$ = Rx.Observable.webSocket(opts)
   // Filters for management of feeds and states
   .filter(() => CANDLESTICKS.length > 0)
   .filter(data => data.table === 'trade' && data.action == 'insert' && data.data.length > 0)
-  .filter(() => LAST_ORDER_FRACTAL === null || LAST_ORDER_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastFractal)
-  .filter(() => !WAIT_FOR_NEXT_FRACTAL)
+  .filter(() => {
+    if (env.strategy.endsWith('long')) {
+      return LAST_ORDER_UP_FRACTAL === null || LAST_ORDER_UP_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastFractal.up
+    } else if (env.strategy.endsWith(short)) {
+      return LAST_ORDER_DOWN_FRACTAL === null || LAST_ORDER_DOWN_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastFractal.down
+    } else {
+      return false
+    }
+  })
+  .filter(() => {
+    if (env.strategy.endsWith('long')) {
+      return !WAIT_FOR_NEXT_UP_FRACTAL
+    } else if (env.strategy.endsWith('short')) {
+      return !WAIT_FOR_NEXT_DOWN_FRACTAL
+    } else {
+      return false
+    }
+  })
 
   // The Strategy we are using
   .filter((feed) => getStrategyByName(env.strategy, CANDLESTICKS, feed).filter())
@@ -83,8 +122,15 @@ const socket$ = Rx.Observable.webSocket(opts)
   // Let's make it happen!
   .switchMap(() => setMargin(bitmexClient))
   .switchMap(() => {
-    LAST_ORDER_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastFractal
-    return generateOrders(bitmexClient, 'long')
+    if (env.strategy.endsWith('long')) {
+      LAST_ORDER_UP_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastFractal.up
+      return generateOrders(bitmexClient, 'long')
+    } else if (env.strategy.endsWith('short')) {
+      LAST_ORDER_DOWN_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastFractal.down
+      return generateOrders(bitmexClient, 'short')
+    } else {
+      return Rx.Observable.empty()
+    }
   })
 
   // Send telegram message after a successful trade (or not)
