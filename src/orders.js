@@ -95,14 +95,14 @@ const generateOrders = (bitmexClient, positionType) => {
           }
           return Rx.Observable.interval(2000)
             .startWith(0)
-            .do(() => console.log(`Polling for orders: ${limitOrderId} / ${stopOrderId}`))
+            .do(() => logger.info(`Polling for orders: ${limitOrderId} / ${stopOrderId}`))
             .switchMap(() => Rx.Observable.fromPromise(bitmexClient.makeRequest('GET', '/order', pollOpts)))
             .filter(res => res.length > 0)
             .filter(res => res[0].ordStatus === 'Filled' || res[0].ordStatus === 'Canceled' || res[1].ordStatus === 'Filled' || res[1].ordStatus === 'Canceled')
             .take(1)
-            .do(() => console.log('Cancelling remaining active order'))
+            .do(() => logger.info('Cancelling remaining active order'))
             .switchMap(() => cancelAllOrders(bitmexClient))
-            .do((res) => console.log(`Canceled order id: ${res[0].orderID} / ${res[0].ordType}`))
+            .do((res) => logger.info(`Canceled order id: ${res[0].orderID} / ${res[0].ordType}`))
             .map((res) => {
               return res[0].ordType === 'Stop' && res[0].ordStatus === 'Canceled' ? 'Opit BOSQUEEEE 💵💵💵💵💵💵' : 'Digebugin warga bosqueee'
             })
