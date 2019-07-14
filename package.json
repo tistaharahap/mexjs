@@ -4,7 +4,9 @@
   "description": "",
   "main": "src/app.js",
   "scripts": {
-    "start": "nodemon --watch src --exec babel-node src/app.js"
+    "start": "nodemon --watch src --exec babel-node src/app.js",
+    "build": "babel ./src/ -x '.js' --retain-lines -d dist",
+    "serve": "npm run build && node dist/app.js"
   },
   "author": "Batista Harahap",
   "license": "ISC",
