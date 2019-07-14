@@ -5,7 +5,7 @@ import env from './env'
 import { generateCandleStream } from './candlestream'
 import { generateOrders, setMargin, cancelAllOrders } from './orders'
 import logger from './logger'
-import { NektrabarLong, NektrabarShort, VMWALong } from './strategies'
+import { getStrategyByName } from './strategies'
 import { logConfigAndLastCandle, sendPostTradeNotification } from './utils'
 
 /**
@@ -73,12 +73,11 @@ const opts = {
 const socket$ = Rx.Observable.webSocket(opts)
   // Filters for management of feeds and states
   .filter(() => CANDLESTICKS.length > 0)
+  // The Strategy we are using
+  .filter((feed) => getStrategyByName(env.strategy, CANDLESTICKS, feed).filter())
   .filter(data => data.table === 'trade' && data.action == 'insert' && data.data.length > 0)
   .filter(() => LAST_ORDER_FRACTAL === null || LAST_ORDER_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastFractal)
   .filter(() => !WAIT_FOR_NEXT_FRACTAL)
-
-  // The Strategy we are using
-  .filter((feed) => new NektrabarShort(CANDLESTICKS, feed).filter())
 
   // Let's make it happen!
   .switchMap(() => setMargin(bitmexClient))
