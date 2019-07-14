@@ -102,9 +102,11 @@ const generateOrders = (bitmexClient, positionType) => {
             .take(1)
             .do(() => logger.info('Cancelling remaining active order'))
             .switchMap(() => cancelAllOrders(bitmexClient))
-            .do((res) => logger.info(`Canceled order id: ${res[0].orderID} / ${res[0].ordType}`))
             .map((res) => {
-              return res[0].ordType === 'Stop' && res[0].ordStatus === 'Canceled' ? 'Opit BOSQUEEEE 💵💵💵💵💵💵' : 'Digebugin warga bosqueee'
+              if (res.length === 0) {
+                return 'Digebugin warga bosqueee 🔨🔨🔨🔨🔨🔨'
+              }
+              return 'Opit BOSQUEEEE 💵💵💵💵💵💵'
             })
         })
         .observeOn(Rx.Scheduler.async)
