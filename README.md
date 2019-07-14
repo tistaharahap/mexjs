@@ -2,6 +2,20 @@
 
 `MexJS` is a `BitMex` trading bot with custom strategies.
 
+## Indicators
+
+We can calculate our own indicators or use the excellent [technicalindicators](https://github.com/anandanand84/technicalindicators) library.
+
+Use [candlestream.js](src/candlestream.js) to plug your indicator to candles. Strategies will look for indicators from candlesticks.
+
+## Strategies
+
+All strategy classes must extend the base `Strategy` class [here](src/strategies/base.js). The constructor accepts 2 arguments which are `candlesticks` and `feed`.
+
+Append `-long` and `-short` suffixes for your strategy name to be loaded [here](src/strategies/index.js). If you don't do this, you will not be able to trade.
+
+All strategy classes must implement a `filter()` method returnin `true` or `false` for conditions met or unmet for the strategy.
+
 ## Env Vars
 
 | Name | Description |
