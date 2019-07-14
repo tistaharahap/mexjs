@@ -5,9 +5,11 @@ import sendTelegramMessage from './telegram-utils'
 const logConfigAndLastCandle = (candlesticks) => {
   const lastCandle = candlesticks[candlesticks.length - 1]
 
+  logger.info(' ')
   logger.info('===========================================')
   logger.info(`MexJS v${env.version}`)
   logger.info('===========================================')
+  logger.info(`Strategy: ${env.strategy}`)
   logger.info(`Symbol: ${env.symbol}`)
   logger.info(`TF: ${env.tf}`)
   logger.info(`Use Testnet: ${env.useTestnet}`)
