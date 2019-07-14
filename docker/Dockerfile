@@ -15,6 +15,7 @@ RUN apk del native-deps
 
 # Build assets
 COPY . ./
+RUN npm run build
 
 # Default runtime configs and helpers
 EXPOSE 8080
