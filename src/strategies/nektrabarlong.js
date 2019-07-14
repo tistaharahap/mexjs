@@ -16,7 +16,7 @@ class NektrabarLong extends Strategy {
    */
   newTradesWithPricesAboveTheLastFractal() {
     return new Decimal(this.feed.data[0].price)
-      .greaterThanOrEqualTo(this.candlesticks[this.candlesticks.length - 1].lastFractal)
+      .greaterThanOrEqualTo(this.candlesticks[this.candlesticks.length - 1].lastUpFractal)
   }
 
   /**
@@ -33,7 +33,7 @@ class NektrabarLong extends Strategy {
     ).dividedBy(3)
 
     return ohc3
-      .greaterThan(lastCandle.lastFractal)
+      .greaterThan(lastCandle.lastUpFractal)
   }
 
   /**

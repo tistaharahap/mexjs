@@ -79,7 +79,7 @@ const DownFractal = (lows) => {
   return lows
     .map(x => parseFloat(x))
     .map((v, n) => {
-      if (n + 3 > highs.length) {
+      if (n + 3 > lows.length) {
         return null
       }
 

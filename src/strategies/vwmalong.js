@@ -13,8 +13,9 @@ class VMWALong extends Strategy {
    * @return {boolean}
    */
   vwmaHigherThanLow() {
-    return new Decimal(this.candlesticks[this.candlesticks.length - 1].vmwa)
-      .greaterThanOrEqualTo(this.candlesticks[this.candlesticks.length - 1].low)
+    return this.candlesticks[this.candlesticks.length - 1].vmwa &&
+      new Decimal(this.candlesticks[this.candlesticks.length - 1].vmwa)
+        .greaterThanOrEqualTo(this.candlesticks[this.candlesticks.length - 1].low)
   }
 
   /**
@@ -23,8 +24,10 @@ class VMWALong extends Strategy {
    * @return {boolean}
    */
   newTradesWithPricesAboveTheLastFractal() {
-    return new Decimal(this.feed.data[0].price)
-      .greaterThanOrEqualTo(this.candlesticks[this.candlesticks.length - 1].lastFractal)
+    return this.feed.data[0].price && 
+      this.candlesticks[this.candlesticks.length - 1].lastUpFractal &&
+      new Decimal(this.feed.data[0].price)
+        .greaterThanOrEqualTo(this.candlesticks[this.candlesticks.length - 1].lastUpFractal)
   }
 }
 

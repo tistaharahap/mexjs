@@ -1,6 +1,6 @@
 import Rx from '@reactivex/rxjs'
 import { BitmexAPI } from 'bitmex-node'
-import { UpFractal, VWMA } from './indicators'
+import { UpFractal, DownFractal, VWMA } from './indicators'
 import { ADX, RSI } from 'technicalindicators'
 import env from './env'
 
@@ -26,6 +26,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
     binSize,
     count,
     reverse: true,
+    partial: true,
   }
   return Rx.Observable.fromPromise(client.Trade.getBucketed(opts))
     .map((klines) => {
@@ -38,20 +39,30 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
       const volumes = klines.map(x => x.volume)
       const lows = klines.map(x => x.low)
 
-      let lastFractal = 0.0
+      let lastFractal = {
+        up: 0.0,
+        down: 0.0,
+      }
 
       const vwmas = VWMA(closes, volumes, 34)
       const upFractals = UpFractal(highs)
+      const downFractals = DownFractal(lows)
       const adxs = ADX.calculate({ high: highs, low: lows, close: closes, period: 34 })
       const rsis = RSI.calculate({ values: closes, period: 14 })
 
       vwmas.forEach((v, n) => {
         klines[n]['upFractal'] = upFractals[n]
+        klines[n]['downFractal'] = downFractals[n]
+        
         if (upFractals[n] !== null) {
-          lastFractal = upFractals[n]
+          lastFractal.up = upFractals[n]
+        }
+        if (downFractals[n] !== null) {
+          lastFractal.down = downFractals[n]
         }
 
-        klines[n]['lastFractal'] = lastFractal
+        klines[n]['lastUpFractal'] = lastFractal.up
+        klines[n]['lastDownFractal'] = lastFractal.down
         klines[n]['vwma'] = v
       })
 
@@ -72,7 +83,10 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
 
       return klines
     })
-    .catch(() => Rx.Observable.from([]))
+    .catch((err) => {
+      console.log(err.stack)
+      return Rx.Observable.from([])
+    })
 }
 
 export {
