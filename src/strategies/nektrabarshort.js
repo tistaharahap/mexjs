@@ -56,7 +56,7 @@ class NektrabarShort extends Strategy {
   vwmaAbove() {
     const lastCandle = this.candlesticks[this.candlesticks.length - 1]
     return new Decimal(lastCandle.low)
-      .greaterThanOrEqualTo(lastCandle.vmwa)
+      .greaterThanOrEqualTo(lastCandle.vwma)
   }
 }
 
