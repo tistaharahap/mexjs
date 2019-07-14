@@ -12,7 +12,8 @@ const env = {
   orderQuantity: process.env.ORDER_QUANTITY || 50,
   margin: process.env.MARGIN || 50,
   version: packageJson.version,
-  strategy: process.env.STRATEGY || 'nektrabar-short'
+  strategy: process.env.STRATEGY || 'nektrabar-short',
+  tradeOnClose: process.env.TRADE_ON_CLOSE || 1,
 }
 
 export default env
