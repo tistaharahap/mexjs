@@ -1,0 +1,44 @@
+## Cancel all orders
+cancel all order
+
+## Get Candle Data
+get candlestream
+apply indicators to candlestream
+
+## Check remaining open positions
+get open position
+if any open position:
+  get latest_price
+  set tp_price = tp_in_percentage * entry_price
+  set cl_price = sl_in_percentage * entry_price
+  if latest_price > tp_price
+    tp_price = latest_price +/- 1 pip
+
+  create take profit using limit (close)
+  create stop loss order using market (index price, close) 
+
+## Apply Filter
+connect ws
+filter state
+filter based on strategy
+set leverage position
+create entry order using limit
+while not trade timeout or order status = filled:
+  get entry order status
+
+if not filled:
+  break
+if filled or partially filled:
+  cancel order nya
+  get quantity yg didapet
+
+create take profit using limit (close)
+create stop loss order using market (index price, close)
+
+## Polling
+If any active order
+  get orders detail
+  if take profit order or stop loss order closed
+    cancel remaining order
+    set state
+    send message to telegram
