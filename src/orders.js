@@ -17,7 +17,7 @@ const setMargin = (bitmexClient) => {
     symbol: env.symbol,
     leverage: env.margin,
   }
-  return Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', '/position/leverage', opts))
+  return Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', 'position/leverage', opts))
     .observeOn(Rx.Scheduler.asap)
     .catch((err) => {
       logger.error(`Error setting leverage to Bitmex: ${err.stack}`)
@@ -42,7 +42,7 @@ const generateOrders = (bitmexClient, positionType, lastCandle) => {
     timeInForce: 'GoodTillCancel',
   }
   
-  return Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', '/order', marketOrderOpts))
+  return Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', 'order', marketOrderOpts))
     .observeOn(Rx.Scheduler.asap)
     .catch((err) => {
       logger.error(`Error setting leverage to Bitmex: ${err.stack}`)
@@ -88,8 +88,8 @@ const generateOrders = (bitmexClient, positionType, lastCandle) => {
       }
 
       const orders = [
-        Rx.Observable.defer(() => Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', '/order', tpOpts))),
-        Rx.Observable.defer(() => Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', '/order', slOpts))),
+        Rx.Observable.defer(() => Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', 'order', tpOpts))),
+        Rx.Observable.defer(() => Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', 'order', slOpts))),
       ]
 
       return Rx.Observable.zip(...orders)
@@ -131,7 +131,7 @@ const generateOrders = (bitmexClient, positionType, lastCandle) => {
  * @return {Rx.Observable}
  */
 const cancelAllOrders = (bitmexClient) => {
-  return Rx.Observable.fromPromise(bitmexClient.makeRequest('DELETE', '/order/all', { symbol: env.symbol }))
+  return Rx.Observable.fromPromise(bitmexClient.makeRequest('DELETE', 'order/all', { symbol: env.symbol }))
 }
 
 export {
