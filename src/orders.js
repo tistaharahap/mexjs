@@ -33,7 +33,7 @@ const setMargin = (bitmexClient) => {
  * 
  * @return {Rx.Observable}
  */
-const generateOrders = (bitmexClient, positionType) => {
+const generateOrders = (bitmexClient, positionType, lastCandle) => {
   const marketOrderOpts = {
     symbol: env.symbol,
     side: positionType === 'long' ? 'Buy' : 'Sell',
@@ -61,8 +61,8 @@ const generateOrders = (bitmexClient, positionType) => {
         .times(marginMultiplier)
         .toDecimalPlaces(0)
         .toNumber()
-      const slPrice = entryPrice
-        .times(slMultiplier)
+      const slPrice = new Decimal(lastCandle.vwma)
+        .add(positionType === 'long' ? -10.0 : 10.0)
         .toDecimalPlaces(0)
         .toNumber()
       const slTriggerPrice = new Decimal(slPrice)

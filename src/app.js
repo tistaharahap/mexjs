@@ -126,10 +126,10 @@ const socket$ = Rx.Observable.webSocket(opts)
   .switchMap(() => {
     if (env.strategy.endsWith('long')) {
       LAST_ORDER_UP_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastUpFractal
-      return generateOrders(bitmexClient, 'long')
+      return generateOrders(bitmexClient, 'long', CANDLESTICKS[CANDLESTICKS.length - 1])
     } else if (env.strategy.endsWith('short')) {
       LAST_ORDER_DOWN_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastDownFractal
-      return generateOrders(bitmexClient, 'short')
+      return generateOrders(bitmexClient, 'short', CANDLESTICKS[CANDLESTICKS.length - 1])
     } else {
       return Rx.Observable.empty()
     }
