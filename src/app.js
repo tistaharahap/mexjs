@@ -101,7 +101,7 @@ const socket$ = Rx.Observable.webSocket(opts)
     if (env.strategy.endsWith('long')) {
       return LAST_ORDER_UP_FRACTAL === null || LAST_ORDER_UP_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastUpFractal
     } else if (env.strategy.endsWith('short')) {
-      return LAST_ORDER_DOWN_FRACTAL === null || LAST_ORDER_DOWN_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastFractal.down
+      return LAST_ORDER_DOWN_FRACTAL === null || LAST_ORDER_DOWN_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastDownFractal
     } else {
       return false
     }
@@ -120,7 +120,9 @@ const socket$ = Rx.Observable.webSocket(opts)
   .filter((feed) => getStrategyByName(env.strategy, CANDLESTICKS, feed).filter())
 
   // Let's make it happen!
+  .delay(1000)
   .switchMap(() => setMargin(bitmexClient))
+  .delay(1000)
   .switchMap(() => {
     if (env.strategy.endsWith('long')) {
       LAST_ORDER_UP_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastUpFractal

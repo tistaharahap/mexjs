@@ -48,6 +48,7 @@ const generateOrders = (bitmexClient, positionType) => {
       logger.error(`Error setting leverage to Bitmex: ${err.stack}`)
       return Rx.Observable.empty()
     })
+    .delay(1000)
     .switchMap((marketOrder) => {
       const entryPrice = new Decimal(marketOrder.avgPx)
 
@@ -87,11 +88,11 @@ const generateOrders = (bitmexClient, positionType) => {
       }
 
       const orders = [
-        Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', '/order', tpOpts)),
-        Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', '/order', slOpts)),
+        Rx.Observable.defer(() => Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', '/order', tpOpts))),
+        Rx.Observable.defer(() => Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', '/order', slOpts))),
       ]
 
-      return Rx.Observable.zip(...orders)
+      return Rx.Observable.concat(...orders)
         .observeOn(Rx.Scheduler.asap)
         .switchMap((results) => {
           const limitOrderId = results[0].orderID
