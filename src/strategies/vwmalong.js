@@ -1,5 +1,5 @@
 import Strategy from './base'
-import Decimal from 'decimal.js';
+import Decimal from 'decimal.js'
 
 class VMWALong extends Strategy {
   filter() {

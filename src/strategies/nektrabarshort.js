@@ -3,29 +3,18 @@ import Decimal from 'decimal.js'
 
 class NektrabarShort extends Strategy {
   filter() {
-    return this.olcUnder() &&
-      this.redCandle() &&
-      this.newTradesWithPricesLowerTheLastFractal() &&
-      this.vwmaAbove()
+    return this.fractalsGreaterThanOLC3()
+      && this.redCandles()
+      && this.vwmaCrossCandle()
+      && this.breakoutCandle()
   }
 
   /**
-   * The last trade prices must be below the last fractal
+   * The last candles OLC3 must be less than or below the last fractal
    * 
    * @return {boolean}
    */
-  newTradesWithPricesLowerTheLastFractal() {
-    const lastCandle = this.candlesticks[this.candlesticks.length - 1]
-    return new Decimal(this.feed.data[0].price)
-      .lessThan(lastCandle.lastDownFractal)
-  }
-
-  /**
-   * The last candles OLC3 must be lower than the last fractal
-   * 
-   * @return {boolean}
-   */
-  olcUnder() {
+  fractalsGreaterThanOLC3() {
     const lastCandle = this.candlesticks[this.candlesticks.length - 1]
     const olc3 = (
       new Decimal(lastCandle.open)
@@ -42,21 +31,36 @@ class NektrabarShort extends Strategy {
    * 
    * @return {boolean}
    */
-  redCandle() {
+  redCandles() {
     const lastCandle = this.candlesticks[this.candlesticks.length - 1]
-    return new Decimal(lastCandle.close)
-      .lessThan(lastCandle.open)
+    return new Decimal(lastCandle.open)
+      .greaterThan(lastCandle.close)
   }
 
   /**
-   * VMWA must be above or equal to last candle's low
+   * The last candle must be breakout
    * 
    * @return {boolean}
    */
-  vwmaAbove() {
+  breakoutCandle() {
     const lastCandle = this.candlesticks[this.candlesticks.length - 1]
-    return new Decimal(lastCandle.low)
+    return new Decimal(lastCandle.high)
+      .greaterThan(lastCandle.lastDownFractal)
+  }
+
+  /**
+   * VMWA must be less or equal to last candle's low
+   * 
+   * @return {boolean}
+   */
+  vwmaCrossCandle() {
+    const lastCandle = this.candlesticks[this.candlesticks.length - 1]
+    const vwmaAboveLow = new Decimal(lastCandle.low)
+      .lessThanOrEqualTo(lastCandle.vwma)
+    const vwmaBelowHigh = new Decimal(lastCandle.high)
       .greaterThanOrEqualTo(lastCandle.vwma)
+
+    return vwmaAboveLow && vwmaBelowHigh
   }
 }
 

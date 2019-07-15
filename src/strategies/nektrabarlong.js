@@ -3,24 +3,14 @@ import Decimal from 'decimal.js'
 
 class NektrabarLong extends Strategy {
   filter() {
-    return this.newTradesWithPricesAboveTheLastFractal()
-      && this.fractalsLessThanOHC3()
+    return this.fractalsLessThanOHC3()
       && this.greenCandles()
-      && this.vwmaUnder()
+      && this.vwmaCrossCandle()
+      && this.breakoutCandle()
   }
 
   /**
-   * The last trade prices must be above the last fractal
-   * 
-   * @return {boolean}
-   */
-  newTradesWithPricesAboveTheLastFractal() {
-    return new Decimal(this.feed.data[0].price)
-      .greaterThanOrEqualTo(this.candlesticks[this.candlesticks.length - 1].lastUpFractal)
-  }
-
-  /**
-   * The last candles OHC3 must be greater than the last fractal
+   * The last candles OHC3 must be greater than or above the last fractal
    * 
    * @return {boolean}
    */
@@ -48,14 +38,29 @@ class NektrabarLong extends Strategy {
   }
 
   /**
+   * The last candle must be breakout
+   * 
+   * @return {boolean}
+   */
+  breakoutCandle() {
+    const lastCandle = this.candlesticks[this.candlesticks.length - 1]
+    return new Decimal(lastCandle.low)
+      .lessThan(lastCandle.lastUpFractal)
+  }
+
+  /**
    * VMWA must be less or equal to last candle's high
    * 
    * @return {boolean}
    */
-  vwmaUnder() {
+  vwmaCrossCandle() {
     const lastCandle = this.candlesticks[this.candlesticks.length - 1]
-    return new Decimal(lastCandle.high)
+    const vwmaAboveLow = new Decimal(lastCandle.low)
       .lessThanOrEqualTo(lastCandle.vwma)
+    const vwmaBelowHigh = new Decimal(lastCandle.high)
+      .greaterThanOrEqualTo(lastCandle.vwma)
+
+    return vwmaAboveLow && vwmaBelowHigh
   }
 }
 
