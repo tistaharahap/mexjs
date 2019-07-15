@@ -92,7 +92,7 @@ const generateOrders = (bitmexClient, positionType, lastCandle) => {
         Rx.Observable.defer(() => Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', '/order', slOpts))),
       ]
 
-      return Rx.Observable.concat(...orders)
+      return Rx.Observable.zip(...orders)
         .observeOn(Rx.Scheduler.asap)
         .switchMap((results) => {
           const limitOrderId = results[0].orderID
