@@ -14,6 +14,7 @@ const env = {
   version: packageJson.version,
   strategy: process.env.STRATEGY || 'nektrabar-long',
   tradeOnClose: process.env.TRADE_ON_CLOSE || 1,
+  orderRetries: process.env.ORDER_RETRIES || 3,
 }
 
 export default env
