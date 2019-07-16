@@ -145,6 +145,11 @@ const socket$ = Rx.Observable.webSocket(opts)
 getOpenPositions(bitmexClient)
   .map(positions => positions[0])
   .switchMap((position) => {
+    if (position.length === 0) {
+      logger.info('No positions are recorded')
+      return Rx.Observable.of(1)
+    }
+
     logger.info(`Leverage is set to ${position.leverage}`)
     logger.info(`Cross margin: ${position.crossMargin}`)
 
