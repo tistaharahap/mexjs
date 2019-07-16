@@ -1,6 +1,7 @@
 import logger from './logger'
 import env from './env'
 import sendTelegramMessage from './telegram-utils'
+import Rx from '@reactivex/rxjs'
 
 const logConfigAndLastCandle = (candlesticks) => {
   const lastCandle = candlesticks[candlesticks.length - 1]
@@ -40,7 +41,18 @@ const sendPostTradeNotification = (res) => {
   return sendTelegramMessage(message)
 }
 
+const getInitSecond = (initSecond) => {
+  return Rx.Observable.interval(1000)
+    .switchMap(() => {
+      const date = new Date()
+      return Rx.Observable.of(date.getSeconds())
+        .filter((second) => second === initSecond)
+    })
+    .take(1)
+}
+
 export {
   logConfigAndLastCandle,
   sendPostTradeNotification,
+  getInitSecond
 }
