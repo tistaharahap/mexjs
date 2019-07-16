@@ -44,7 +44,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
         down: 0.0,
       }
 
-      const vwmas = VWMA(closes, volumes, 34)
+      const vwmas = VWMA(closes, volumes, 13)
       const upFractals = UpFractal(highs)
       const downFractals = DownFractal(lows)
       const adxs = ADX.calculate({ high: highs, low: lows, close: closes, period: 34 })
