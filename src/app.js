@@ -118,6 +118,16 @@ const socket$ = Rx.Observable.webSocket(opts)
     }
   })
 
+  // Don't trade if there are any open positions
+  .switchMap((feed) => {
+    return getOpenPositions(bitmexClient)
+      .filter((positions) => {
+        const position = positions[0]
+        return position === undefined || (position !== undefined && position.isOpen === false)
+      })
+      .map(() => feed)
+  })
+
   // The Strategy we are using
   .filter((feed) => getStrategyByName(env.strategy, CANDLESTICKS, feed).filter())
 
