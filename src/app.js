@@ -145,7 +145,7 @@ const socket$ = Rx.Observable.webSocket(opts)
 getOpenPositions(bitmexClient)
   .map(positions => positions[0])
   .switchMap((position) => {
-    if (position.length === 0) {
+    if (!position) {
       logger.info('No positions are recorded')
       return Rx.Observable.of(1)
     }
