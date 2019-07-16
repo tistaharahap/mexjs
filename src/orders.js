@@ -73,7 +73,7 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
     .add(positionType === 'long' ? 1.0 : -1.0)
     .toDecimalPlaces(0)
     .toNumber()
-  
+
   const tpOpts = {
     symbol: env.symbol,
     side: positionType === 'long' ? 'Sell' : 'Buy',
@@ -92,12 +92,21 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
   }
 
   const orders = [
-    Rx.Observable.defer(() => Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', 'order', tpOpts))),
-    Rx.Observable.defer(() => Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', 'order', slOpts))),
+    Rx.Observable.defer(() => {
+      return Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', 'order', tpOpts))
+        .retryWhen((err) => err.delay(1000).take(env.orderRetries).concat(Rx.Observable.throw(err)))
+        .delay(1000)
+    }),
+    Rx.Observable.defer(() => {
+      return Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', 'order', slOpts))
+        .retryWhen((err) => err.delay(1000).take(env.orderRetries).concat(Rx.Observable.throw(err)))
+        .delay(1000)
+    }),
   ]
 
-  return Rx.Observable.zip(...orders)
+  return Rx.Observable.concat(...orders)
     .observeOn(Rx.Scheduler.asap)
+    .toArray()
     .switchMap((results) => {
       const limitOrderId = results[0].orderID
       const stopOrderId = results[1].orderID
@@ -171,6 +180,7 @@ const generateMarketOrder = (bitmexClient, quantity, positionType) => {
   }
   return Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', 'order', marketOrderOpts))
     .observeOn(Rx.Scheduler.asap)
+    .retryWhen((err) => err.delay(1000).take(env.orderRetries).concat(Rx.Observable.throw(err)))
 }
 
 export {
