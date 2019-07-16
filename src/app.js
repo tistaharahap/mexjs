@@ -6,7 +6,7 @@ import { generateCandleStream } from './candlestream'
 import { generateOrders, setMargin, cancelAllOrders, getOpenPositions, generateMarketOrder } from './orders'
 import logger from './logger'
 import { getStrategyByName } from './strategies'
-import { logConfigAndLastCandle, sendPostTradeNotification } from './utils'
+import { logConfigAndLastCandle, sendPostTradeNotification, getInitSecond } from './utils'
 
 /**
  * @type {Array} Candlesticks state var
@@ -57,7 +57,7 @@ cancelAllOrders(bitmexClient)
   .subscribe(res => logger.info(`Successfully canceled all ${res.length} order(s)`))
 
 // Interval to poll for candlesticks
-Rx.Observable
+const candleStreamInterval$ = Rx.Observable
   .interval(env.candleIntervalInSeconds * 1000)
   .startWith(0)
   .switchMap(() => generateCandleStream(env.apiKey, env.apiSecret, env.symbol, env.tf, 300))
@@ -82,7 +82,9 @@ Rx.Observable
   })
   .do(res => logConfigAndLastCandle(res))
   .do(klines => CANDLESTICKS = klines)
-  .subscribe()
+
+getInitSecond(1)
+  .subscribe(() => candleStreamInterval$.subscribe())
 
 /**
  * @type {JSON} The options for Bitmex websocket connection
@@ -116,16 +118,6 @@ const socket$ = Rx.Observable.webSocket(opts)
     } else {
       return false
     }
-  })
-
-  // Don't trade if there are any open positions
-  .switchMap((feed) => {
-    return getOpenPositions(bitmexClient)
-      .filter((positions) => {
-        const position = positions[0]
-        return position === undefined || (position !== undefined && position.isOpen === false)
-      })
-      .map(() => feed)
   })
 
   // The Strategy we are using
