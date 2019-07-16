@@ -34,18 +34,10 @@ const setMargin = (bitmexClient) => {
  * @return {Rx.Observable}
  */
 const generateOrders = (bitmexClient, positionType, lastCandle) => {
-  const marketOrderOpts = {
-    symbol: env.symbol,
-    side: positionType === 'long' ? 'Buy' : 'Sell',
-    orderQty: env.orderQuantity,
-    ordType: 'Market',
-    timeInForce: 'GoodTillCancel',
-  }
-  
-  return Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', 'order', marketOrderOpts))
+  return generateMarketOrder(bitmexClient, env.orderQuantity, positionType)
     .observeOn(Rx.Scheduler.asap)
     .catch((err) => {
-      logger.error(`Error setting leverage to Bitmex: ${err.stack}`)
+      logger.error(`Error posting market buy order: ${err.stack}`)
       return Rx.Observable.empty()
         .delay(100)
     })
@@ -141,12 +133,50 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
  * 
  * @return {Rx.Observable}
  */
+const getOpenPositions = (bitmexClient) => {
+  const opts = {
+    filter: JSON.stringify({ symbol: env.symbol })
+  }
+  return Rx.Observable.fromPromise(bitmexClient.makeRequest('GET', 'position', opts))
+    .observeOn(Rx.Scheduler.asap)
+}
+
+/**
+ * Cancel all outstanding orders
+ * 
+ * @param {BitMexPlus} bitmexClient - BitMexPlus client instance
+ * 
+ * @return {Rx.Observable}
+ */
 const cancelAllOrders = (bitmexClient) => {
   return Rx.Observable.fromPromise(bitmexClient.makeRequest('DELETE', 'order/all', { symbol: env.symbol }))
+}
+
+/**
+ * Generate a market order
+ * 
+ * @param {BitMexPlus} bitmexClient - BitMexPlus client instance
+ * @param {number} quantity - The number of contracts
+ * @param {string} positionType - Do you want to 'Sell' or 'Buy'?
+ * 
+ * @return {Rx.Observable}
+ */
+const generateMarketOrder = (bitmexClient, quantity, positionType) => {
+  const marketOrderOpts = {
+    symbol: env.symbol,
+    side: positionType === 'long' ? 'Buy' : 'Sell',
+    orderQty: quantity,
+    ordType: 'Market',
+    timeInForce: 'GoodTillCancel',
+  }
+  return Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', 'order', marketOrderOpts))
+    .observeOn(Rx.Scheduler.asap)
 }
 
 export {
   generateOrders,
   setMargin,
   cancelAllOrders,
+  getOpenPositions,
+  generateMarketOrder,
 }

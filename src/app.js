@@ -3,7 +3,7 @@ import WebSocket from 'websocket'
 import { BitMexPlus } from 'bitmex-plus'
 import env from './env'
 import { generateCandleStream } from './candlestream'
-import { generateOrders, setMargin, cancelAllOrders } from './orders'
+import { generateOrders, setMargin, cancelAllOrders, getOpenPositions, generateMarketOrder } from './orders'
 import logger from './logger'
 import { getStrategyByName } from './strategies'
 import { logConfigAndLastCandle, sendPostTradeNotification } from './utils'
@@ -52,9 +52,11 @@ const bitmexClient = new BitMexPlus({
   testnet: env.useTestnet === 1,
 })
 
+// Cancel all order on first run
 cancelAllOrders(bitmexClient)
   .subscribe(res => logger.info(`Successfully canceled all ${res.length} order(s)`))
 
+// Interval to poll for candlesticks
 Rx.Observable
   .interval(env.candleIntervalInSeconds * 1000)
   .startWith(0)
@@ -83,7 +85,7 @@ Rx.Observable
   .subscribe()
 
 /**
- * @type {JSON} name A name to use.
+ * @type {JSON} The options for Bitmex websocket connection
  */
 const opts = {
   url: env.useTestnet === 1 ? 'wss://testnet.bitmex.com/realtime' : 'wss://www.bitmex.com/realtime',
@@ -91,7 +93,7 @@ const opts = {
 }
 
 /**
- * @type {Rx.Observable} name A name to use.
+ * @type {Rx.Observable} The websocket subject containing the core business logic
  */
 const socket$ = Rx.Observable.webSocket(opts)
   // Filters for management of feeds and states
@@ -139,9 +141,29 @@ const socket$ = Rx.Observable.webSocket(opts)
   .switchMap(msg => sendPostTradeNotification(msg))
   .catch(err => logger.error(err.stack))
 
-socket$
-  .subscribe(
-    res => logger.info(res),
-  )
-socket$
-  .next(JSON.stringify({ op: 'subscribe', args: `trade:${env.symbol}`}))
+// Get and cancel any open positions
+getOpenPositions(bitmexClient)
+  .map(positions => positions[0])
+  .switchMap((position) => {
+    logger.info(`Leverage is set to ${position.leverage}`)
+    logger.info(`Cross margin: ${position.crossMargin}`)
+
+    const isOpen = position.isOpen
+    logger.info(`Is Open: ${isOpen}`)
+    if (!isOpen) {
+      return Rx.Observable.of(1)
+    }
+
+    const currentQuantity = position.currentQty
+    const closeSide = currentQuantity > 0 ? 'Sell' : 'Buy'
+
+    logger.info(`Current Quantity: ${currentQuantity}`)
+    logger.info(`Close Side: ${closeSide}`)
+
+    return generateMarketOrder(bitmexClient, currentQuantity * -1, closeSide)
+  })
+  .subscribe(() => {
+    logger.info('Done checking for open positions, going to start Websocket feed from Bitmex')
+    socket$.subscribe()
+    socket$.next(JSON.stringify({ op: 'subscribe', args: `trade:${env.symbol}`}))
+  })
