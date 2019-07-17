@@ -20,8 +20,7 @@
     "rxjs": "^6.5.2",
     "technicalindicators": "^2.0.9",
     "telegraf": "^3.30.1",
-    "websocket": "^1.0.29",
-    "winston": "^3.2.1"
+    "websocket": "^1.0.29"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.4",
