@@ -72,7 +72,8 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
       .toDecimalPlaces(0)
       .toNumber()
   } else {
-    slPrice = new Decimal(lastCandle.low)
+    const thePrice = positionType === 'long' ? lastCandle.low : lastCandle.high
+    slPrice = new Decimal(thePrice)
       .toDecimalPlaces(0)
       .toNumber()
   }
