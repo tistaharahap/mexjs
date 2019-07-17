@@ -59,21 +59,23 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
 
   const marginMultiplier = positionType === 'long' ? 1.0 + (env.tpInPercentage / 100) :
     1.0 - (env.tpInPercentage / 100)
-  const slMultiplier = positionType === 'long' ? 1.0 - (env.slInPercentage / 100) :
-    1.0 + (env.slInPercentage / 100)
 
   const tpPrice = entryPrice
     .times(marginMultiplier)
     .toDecimalPlaces(0)
     .toNumber()
-  const slPrice = new Decimal(lastCandle.vwma)
-    .add(positionType === 'long' ? -10.0 : 10.0)
-    .toDecimalPlaces(0)
-    .toNumber()
-  const slTriggerPrice = new Decimal(slPrice)
-    .add(positionType === 'long' ? 1.0 : -1.0)
-    .toDecimalPlaces(0)
-    .toNumber()
+  
+  let slPrice = null
+  if (env.tradeOnClose === 1) {
+    slPrice = new Decimal(lastCandle.vwma)
+      .add(positionType === 'long' ? -10.0 : 10.0)
+      .toDecimalPlaces(0)
+      .toNumber()
+  } else {
+    slPrice = new Decimal(lastCandle.low)
+      .toDecimalPlaces(0)
+      .toNumber()
+  }
 
   const tpOpts = {
     symbol: env.symbol,
@@ -89,7 +91,7 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
     side: positionType === 'long' ? 'Sell' : 'Buy',
     execInst: 'LastPrice,Close',
     ordType: 'Stop',
-    stopPx: slTriggerPrice,
+    stopPx: slPrice,
   }
 
   const orders = [

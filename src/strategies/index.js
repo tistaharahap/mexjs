@@ -2,6 +2,7 @@ import NektrabarLong from './nektrabarlong'
 import NektrabarShort from './nektrabarshort'
 import VMWALong from './vwmalong'
 import VWMAShort from './vwmashort'
+import FractalBreakoutLong from './fractalbreakout-long'
 
 const getStrategyByName = (name, candlesticks, feed) => {
   switch (name) {
@@ -13,6 +14,8 @@ const getStrategyByName = (name, candlesticks, feed) => {
       return new VMWALong(candlesticks, feed)
     case 'vwma-short':
       return new VWMAShort(candlesticks, feed)
+    case 'fractalbreakout-long':
+      return new FractalBreakoutLong(candlesticks, feed)
     default:
       return null
   }
@@ -23,5 +26,5 @@ export {
   NektrabarShort,
   VMWALong,
   VWMAShort,
-  getStrategyByName
+  getStrategyByName,
 }
