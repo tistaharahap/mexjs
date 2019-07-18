@@ -55,10 +55,10 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
         klines[n]['downFractal'] = downFractals[n]
         
         if (upFractals[n] !== null) {
-          lastFractal.up = upFractals[n]
+          lastFractal.up = n !== vwmas.length - 1 ? upFractals[n] : null
         }
         if (downFractals[n] !== null) {
-          lastFractal.down = downFractals[n]
+          lastFractal.down = n !== vwmas.length - 1 ? downFractals[n] : null
         }
 
         klines[n]['lastUpFractal'] = lastFractal.up
