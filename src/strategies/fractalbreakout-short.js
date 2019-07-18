@@ -13,12 +13,8 @@ class FractalBreakoutShort extends Strategy {
    */
   breakoutCandle() {
     const lastCandle = this.candlesticks[this.candlesticks.length - 1]
-    const beforeLastCandle = this.candlesticks[this.candlesticks.length - 2]
-    const beforeBeforeLastCandle = this.candlesticks[this.candlesticks.length - 3]
     const currentPrice = new Decimal(this.feed.data[0].price)
-    return currentPrice.lessThan(lastCandle.lastDownFractal) &&
-      currentPrice.lessThan(beforeLastCandle.lastDownFractal) &&
-      currentPrice.lessThan(beforeBeforeLastCandle.lastDownFractal)
+    return currentPrice.lessThan(lastCandle.lastDownFractal)
   }
 }
 

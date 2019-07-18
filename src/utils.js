@@ -2,6 +2,7 @@ import logger from './logger'
 import env from './env'
 import sendTelegramMessage from './telegram-utils'
 import Rx from '@reactivex/rxjs'
+import crypto from 'crypto'
 
 const logConfigAndLastCandle = (candlesticks) => {
   const lastCandle = candlesticks[candlesticks.length - 1]
@@ -51,8 +52,19 @@ const getInitSecond = (initSecond) => {
     .take(1)
 }
 
+const signatureForWebsocketAuth = (apiSecret = null) => {
+  const expires = Math.round(new Date().getTime() / 1000) + 60
+  const data = `GET/realtime${expires}`
+
+  return {
+    signature: crypto.createHmac('sha256', apiSecret ? apiSecret : env.apiSecret).update(data).digest('hex'),
+    expires,
+  }
+}
+
 export {
   logConfigAndLastCandle,
   sendPostTradeNotification,
-  getInitSecond
+  getInitSecond,
+  signatureForWebsocketAuth,
 }

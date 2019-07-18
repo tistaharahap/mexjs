@@ -1,5 +1,5 @@
 import Rx from '@reactivex/rxjs'
-import WebSocket from 'websocket'
+import WebSocket from 'ws'
 import { BitMexPlus } from 'bitmex-plus'
 import env from './env'
 import { generateCandleStream } from './candlestream'
@@ -91,7 +91,7 @@ getInitSecond(1)
  */
 const opts = {
   url: env.useTestnet === 1 ? 'wss://testnet.bitmex.com/realtime' : 'wss://www.bitmex.com/realtime',
-  WebSocketCtor: WebSocket.w3cwebsocket,
+  WebSocketCtor: WebSocket,
 }
 
 /**
