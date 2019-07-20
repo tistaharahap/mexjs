@@ -51,8 +51,8 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
       const rsis = RSI.calculate({ values: closes, period: 14 })
 
       vwmas.forEach((v, n) => {
-        klines[n]['upFractal'] = upFractals[n]
-        klines[n]['downFractal'] = downFractals[n]
+        klines[n]['upFractal'] = n !== klines.length - 1 ? upFractals[n] : null
+        klines[n]['downFractal'] = n !== klines.length - 1 ? downFractals[n] : null
         
         if (upFractals[n] !== null) {
           lastFractal.up = n !== vwmas.length - 1 ? upFractals[n] : null
