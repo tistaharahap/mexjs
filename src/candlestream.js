@@ -1,6 +1,6 @@
 import Rx from '@reactivex/rxjs'
 import { BitmexAPI } from 'bitmex-node'
-import { UpFractal, DownFractal, VWMA } from './indicators'
+import { UpFractal, DownFractal, IdealUpFractal, IdealDownFractal, VWMA } from './indicators'
 import { ADX, RSI } from 'technicalindicators'
 import env from './env'
 
@@ -45,8 +45,8 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
       }
 
       const vwmas = VWMA(closes, volumes, 13)
-      const upFractals = UpFractal(highs)
-      const downFractals = DownFractal(lows)
+      const upFractals = env.idealFractalsOnly === 1 ? IdealUpFractal(highs) : UpFractal(highs)
+      const downFractals = env.idealFractalsOnly === 1 ? IdealDownFractal(lows) : DownFractal(lows)
       const adxs = ADX.calculate({ high: highs, low: lows, close: closes, period: 34 })
       const rsis = RSI.calculate({ values: closes, period: 14 })
 

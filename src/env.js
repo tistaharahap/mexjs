@@ -15,6 +15,7 @@ const env = {
   strategy: process.env.STRATEGY || 'nektrabar-long',
   tradeOnClose: process.env.TRADE_ON_CLOSE || 1,
   orderRetries: process.env.ORDER_RETRIES || 3,
+  idealFractalsOnly: process.env.IDEAL_FRACTALS_ONLY || 0,
 }
 
 export default env

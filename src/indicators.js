@@ -104,8 +104,54 @@ const DownFractal = (lows) => {
     })
 }
 
+/**
+ * Generate ideal up fractals only for long positions
+ * 
+ * @param {Array} highs - Candle highs
+ * 
+ * @return {Array}
+ */
+const IdealUpFractal = (highs) => {
+  return highs
+    .map(x => parseFloat(x))
+    .map((v, n) => {
+      if (n + 3 > highs.length) {
+        return null
+      }
+
+      const up1 = ((highs[n - 2] < highs[n]) && (highs[n - 1] < highs[n]) && (highs[n + 1] < highs[n]) && (
+        highs[n + 2] < highs[n]))
+
+      return up1 ? v : null
+    })
+}
+
+/**
+ * Generate ideal down fractals only for short positions
+ * 
+ * @param {Array} lows - Candle lows
+ * 
+ * @return {Array}
+ */
+const IdealDownFractal = (lows) => {
+  return lows
+    .map(x => parseFloat(x))
+    .map((v, n) => {
+      if (n + 3 > lows.length) {
+        return null
+      }
+
+      const low1 = ((lows[n - 2] > lows[n]) && (lows[n - 1] > lows[n]) && (lows[n + 1] > lows[n]) && (
+        lows[n + 2] > lows[n]))
+
+      return low1 ? v : null
+    })
+}
+
 export {
   VWMA,
   UpFractal,
   DownFractal,
+  IdealUpFractal,
+  IdealDownFractal,
 }
