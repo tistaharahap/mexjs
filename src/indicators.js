@@ -1,3 +1,5 @@
+import Decimal from "decimal.js";
+
 /**
  * Generate Volume Weighted Moving Average values for given time series
  * 
@@ -47,6 +49,10 @@ const UpFractal = (highs) => {
         return null
       }
 
+      if (highs[n - 2] === undefined || highs[n - 1] === undefined || highs[n + 1] === undefined || highs[n + 2] === undefined) {
+        return null
+      }
+
       const up1 = ((highs[n - 2] < highs[n]) && (highs[n - 1] < highs[n]) && (highs[n + 1] < highs[n]) && (
         highs[n + 2] < highs[n]))
       const up2 = ((highs[n - 3] < highs[n]) && (highs[n - 2] < highs[n]) && (highs[n - 1] === highs[n]) && (
@@ -80,6 +86,10 @@ const DownFractal = (lows) => {
     .map(x => parseFloat(x))
     .map((v, n) => {
       if (n + 3 > lows.length) {
+        return null
+      }
+
+      if (lows[n - 2] === undefined || lows[n - 1] === undefined || lows[n + 1] === undefined || lows[n + 2] === undefined) {
         return null
       }
 
@@ -119,6 +129,10 @@ const IdealUpFractal = (highs) => {
         return null
       }
 
+      if (highs[n - 2] === undefined || highs[n - 1] === undefined || highs[n + 1] === undefined || highs[n + 2] === undefined) {
+        return null
+      }
+
       const up1 = ((highs[n - 2] < highs[n]) && (highs[n - 1] < highs[n]) && (highs[n + 1] < highs[n]) && (
         highs[n + 2] < highs[n]))
 
@@ -138,6 +152,10 @@ const IdealDownFractal = (lows) => {
     .map(x => parseFloat(x))
     .map((v, n) => {
       if (n + 3 > lows.length) {
+        return null
+      }
+
+      if (lows[n - 2] === undefined || lows[n - 1] === undefined || lows[n + 1] === undefined || lows[n + 2] === undefined) {
         return null
       }
 
