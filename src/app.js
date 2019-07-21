@@ -82,6 +82,12 @@ const candleStreamInterval$ = Rx.Observable
   })
   .do(res => logConfigAndLastCandle(res))
   .do(klines => CANDLESTICKS = klines)
+  .catch((err) => {
+    logger.error(`Error getting candles: ${err.message}`)
+    return Rx.Observable
+      .empty()
+      .delay(env.candleIntervalInSeconds)
+  })
 
 getInitSecond(1)
   .subscribe(() => candleStreamInterval$.subscribe())
