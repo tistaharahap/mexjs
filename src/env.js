@@ -12,10 +12,10 @@ const env = {
   orderQuantity: process.env.ORDER_QUANTITY || 50,
   margin: process.env.MARGIN || 50,
   version: packageJson.version,
-  strategy: process.env.STRATEGY || 'nektrabar-long',
+  strategy: process.env.STRATEGY || 'fractalbreakout-long',
   tradeOnClose: process.env.TRADE_ON_CLOSE || 1,
   orderRetries: process.env.ORDER_RETRIES || 3,
-  idealFractalsOnly: process.env.IDEAL_FRACTALS_ONLY || 0,
+  idealFractalsOnly: parseInt(process.env.IDEAL_FRACTALS_ONLY, 10) || 0,
 }
 
 export default env

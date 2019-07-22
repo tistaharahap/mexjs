@@ -45,7 +45,7 @@ const UpFractal = (highs) => {
   return highs
     .map(x => parseFloat(x))
     .map((v, n) => {
-      if (n + 3 > highs.length) {
+      if (n + 3 >= highs.length) {
         return null
       }
 
@@ -85,7 +85,7 @@ const DownFractal = (lows) => {
   return lows
     .map(x => parseFloat(x))
     .map((v, n) => {
-      if (n + 3 > lows.length) {
+      if (n + 3 >= lows.length) {
         return null
       }
 
@@ -125,7 +125,7 @@ const IdealUpFractal = (highs) => {
   return highs
     .map(x => parseFloat(x))
     .map((v, n) => {
-      if (n + 3 > highs.length) {
+      if (n + 3 >= highs.length) {
         return null
       }
 
@@ -133,8 +133,8 @@ const IdealUpFractal = (highs) => {
         return null
       }
 
-      const up1 = ((highs[n - 2] < highs[n]) && (highs[n - 1] < highs[n]) && (highs[n + 1] < highs[n]) && (
-        highs[n + 2] < highs[n]))
+      const up1 = (highs[n - 2] < highs[n]) && (highs[n - 1] < highs[n]) && (highs[n + 1] < highs[n]) && (
+        highs[n + 2] < highs[n]) && (highs[n - 2] < highs[n - 1]) && (highs[n + 2] < highs[n + 1])
 
       return up1 ? v : null
     })
@@ -151,7 +151,7 @@ const IdealDownFractal = (lows) => {
   return lows
     .map(x => parseFloat(x))
     .map((v, n) => {
-      if (n + 3 > lows.length) {
+      if (n + 3 >= lows.length) {
         return null
       }
 
@@ -159,8 +159,8 @@ const IdealDownFractal = (lows) => {
         return null
       }
 
-      const low1 = ((lows[n - 2] > lows[n]) && (lows[n - 1] > lows[n]) && (lows[n + 1] > lows[n]) && (
-        lows[n + 2] > lows[n]))
+      const low1 = (lows[n - 2] > lows[n]) && (lows[n - 1] > lows[n]) && (lows[n + 1] > lows[n]) && (
+        lows[n + 2] > lows[n]) && (lows[n + 2] > lows[n + 1]) && (lows[n - 2] > lows[n - 1])
 
       return low1 ? v : null
     })

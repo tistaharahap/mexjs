@@ -20,6 +20,8 @@ const logConfigAndLastCandle = (candlesticks) => {
   logger.info(`Leverage: ${env.margin}`)
   logger.info(`TP in %: ${env.tpInPercentage}`)
   logger.info(`SL in %: ${env.slInPercentage}`)
+  logger.info(`Trade on Close: ${env.tradeOnClose}`)
+  logger.info(`Ideal Fractals: ${env.idealFractalsOnly}`)
   logger.info(' ')
   logger.info(`Timestamp: ${lastCandle.timestamp}`)
   logger.info(`Open: ${lastCandle.open}`)
