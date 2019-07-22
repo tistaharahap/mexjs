@@ -3,6 +3,7 @@ import env from './env'
 import sendTelegramMessage from './telegram-utils'
 import Rx from '@reactivex/rxjs'
 import crypto from 'crypto'
+import os from 'os'
 
 const logConfigAndLastCandle = (candlesticks) => {
   const lastCandle = candlesticks[candlesticks.length - 1]
@@ -38,7 +39,7 @@ const logConfigAndLastCandle = (candlesticks) => {
 }
 
 const sendPostTradeNotification = (res) => {
-  const message = `💵💵*Mexjs*💵💵\n\n${res}`
+  const message = `💵💵*Mexjs*💵💵\n\n${res}\n\n${os.hostname()}`
   return sendTelegramMessage(message)
 }
 
