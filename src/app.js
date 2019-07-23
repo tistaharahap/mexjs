@@ -116,18 +116,18 @@ const socket$ = Rx.Observable.webSocket(opts)
       return false
     }
   })
-  // .filter(() => {
-  //   if (env.strategy.endsWith('long')) {
-  //     return !WAIT_FOR_NEXT_UP_FRACTAL
-  //   } else if (env.strategy.endsWith('short')) {
-  //     return !WAIT_FOR_NEXT_DOWN_FRACTAL
-  //   } else {
-  //     return false
-  //   }
-  // })
+  .filter(() => {
+    if (env.strategy.endsWith('long')) {
+      return !WAIT_FOR_NEXT_UP_FRACTAL
+    } else if (env.strategy.endsWith('short')) {
+      return !WAIT_FOR_NEXT_DOWN_FRACTAL
+    } else {
+      return false
+    }
+  })
 
   // The Strategy we are using
-  // .filter((feed) => getStrategyByName(env.strategy, CANDLESTICKS, feed).filter())
+  .filter((feed) => getStrategyByName(env.strategy, CANDLESTICKS, feed).filter())
 
   // Let's make it happen!
   .switchMap(() => setMargin(bitmexClient))
