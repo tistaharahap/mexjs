@@ -17,7 +17,7 @@ const env = {
   tradeOnClose: process.env.TRADE_ON_CLOSE || 1,
   orderRetries: process.env.ORDER_RETRIES || 3,
   idealFractalsOnly: parseInt(process.env.IDEAL_FRACTALS_ONLY, 10) || 0,
-  hostname: process.env.HOSTNAME || os.hostname(),
+  name: process.env.NAME || os.hostname(),
 }
 
 export default env

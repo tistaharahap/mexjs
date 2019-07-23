@@ -22,7 +22,7 @@ const logConfigAndLastCandle = (candlesticks) => {
   logger.info(`SL in %: ${env.slInPercentage}`)
   logger.info(`Trade on Close: ${env.tradeOnClose}`)
   logger.info(`Ideal Fractals: ${env.idealFractalsOnly}`)
-  logger.info(`Hostname: ${env.hostname}`)
+  logger.info(`Hostname: ${env.name}`)
   logger.info(' ')
   logger.info(`Timestamp: ${lastCandle.timestamp}`)
   logger.info(`Open: ${lastCandle.open}`)
@@ -42,7 +42,7 @@ const logConfigAndLastCandle = (candlesticks) => {
 }
 
 const sendPostTradeNotification = (res) => {
-  const message = `💵💵*Mexjs*💵💵\n\n${res}\n\n${os.hostname()}`
+  const message = `💵💵*Mexjs*💵💵\n\n${res}\n\n${env.name}`
   return sendTelegramMessage(message)
 }
 
