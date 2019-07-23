@@ -1,4 +1,5 @@
 import packageJson from '../package.json'
+import os from 'os'
 
 const env = {
   apiKey: process.env.API_KEY || '-9xx_XEcnO1nC2DhA4W-YgNU',
@@ -16,6 +17,7 @@ const env = {
   tradeOnClose: process.env.TRADE_ON_CLOSE || 1,
   orderRetries: process.env.ORDER_RETRIES || 3,
   idealFractalsOnly: parseInt(process.env.IDEAL_FRACTALS_ONLY, 10) || 0,
+  hostname: process.env.HOSTNAME || os.hostname(),
 }
 
 export default env

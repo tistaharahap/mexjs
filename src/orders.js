@@ -36,14 +36,14 @@ const setMargin = (bitmexClient) => {
  */
 const generateOrders = (bitmexClient, positionType, lastCandle) => {
   return generateMarketOrder(bitmexClient, env.orderQuantity, positionType)
-    .observeOn(Rx.Scheduler.asap)
+    .observeOn(Rx.Scheduler.async)
     .catch((err) => {
-      logger.error(`Error posting market buy order: ${err.stack}`)
-      return Rx.Observable.empty()
-        .delay(100)
+      logger.error(`Error posting market buy order`)
+      console.log(err)
+      return Rx.Observable.throw(err)
     })
     .delay(1000)
-    .switchMap((marketOrder) => generateTpAndSlOrders(bitmexClient, marketOrder, positionType, lastCandle))
+    .switchMap(marketOrder => generateTpAndSlOrders(bitmexClient, marketOrder, positionType, lastCandle))
 }
 
 /**
@@ -100,45 +100,66 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
   const orders = [
     Rx.Observable.defer(() => {
       return Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', 'order', tpOpts))
-        .retryWhen((err) => err.delay(1000).take(env.orderRetries).concat(Rx.Observable.throw(err)))
+        .retryWhen((err) => err.delay(2000).take(env.orderRetries).concat(Rx.Observable.throw(err)))
         .delay(1000)
     }),
     Rx.Observable.defer(() => {
       return Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', 'order', slOpts))
-        .retryWhen((err) => err.delay(1000).take(env.orderRetries).concat(Rx.Observable.throw(err)))
+        .retryWhen((err) => err.delay(2000).take(env.orderRetries).concat(Rx.Observable.throw(err)))
         .delay(1000)
     }),
   ]
 
   return Rx.Observable.concat(...orders)
-    .observeOn(Rx.Scheduler.asap)
+    .observeOn(Rx.Scheduler.async)
     .toArray()
+    .catch((err) => {
+      logger.error(`Error posting limit and stop orders: ${err.stack}`)
+      return Rx.Observable.empty()
+    })
     .switchMap((results) => {
       const limitOrderId = results[0].orderID
       const stopOrderId = results[1].orderID
 
-      const pollOpts = {
-        symbol: env.symbol,
-        count: 2,
-        filter: JSON.stringify({ orderID: [limitOrderId, stopOrderId] })
-      }
-      return Rx.Observable.interval(2000)
-        .startWith(0)
-        .do(() => logger.info(`Polling for orders: ${limitOrderId} / ${stopOrderId}`))
-        .switchMap(() => Rx.Observable.fromPromise(bitmexClient.makeRequest('GET', '/order', pollOpts)))
-        .filter(res => res.length > 0)
-        .filter(res => res[0].ordStatus === 'Filled' || res[0].ordStatus === 'Canceled' || res[1].ordStatus === 'Filled' || res[1].ordStatus === 'Canceled')
-        .take(1)
-        .do(() => logger.info('Cancelling remaining active order'))
-        .switchMap(() => cancelAllOrders(bitmexClient))
-        .map((res) => {
-          if (res.length === 0) {
-            return `Digebugin warga bosqueee 🔨🔨🔨🔨🔨🔨\nPowered By: ${env.strategy}`
-          }
-          return `Opit BOSQUEEEE 💵💵💵💵💵💵\nPowered By: ${env.strategy}`
-        })
+      return generateOrderPolling(bitmexClient, limitOrderId, stopOrderId)
     })
-    .observeOn(Rx.Scheduler.asap)
+    .observeOn(Rx.Scheduler.async)
+}
+
+/**
+ * We're in an open position, poll orders until closed or stopped
+ * 
+ * @param {BitMexPlus} bitmexClient - BitMexPlus client instance
+ * @param {string} limitOrderId - Limit close order id
+ * @param {string} stopOrderId - Stop order id
+ * 
+ * @return {Rx.Observable}
+ */
+const generateOrderPolling = (bitmexClient, limitOrderId, stopOrderId) => {
+  const pollOpts = {
+    symbol: env.symbol,
+    count: 2,
+    filter: JSON.stringify({ orderID: [limitOrderId, stopOrderId] })
+  }
+  return Rx.Observable.interval(5000)
+    .startWith(0)
+    .do(() => logger.info(`Polling for orders: ${limitOrderId} / ${stopOrderId}`))
+    .switchMap(() => Rx.Observable.fromPromise(bitmexClient.makeRequest('GET', '/order', pollOpts)))
+    .filter(res => res.length > 0)
+    .filter(res => res[0].ordStatus === 'Filled' || res[0].ordStatus === 'Canceled' || res[1].ordStatus === 'Filled' || res[1].ordStatus === 'Canceled')
+    .take(1)
+    .do(() => logger.info('Cancelling remaining active order'))
+    .switchMap(() => cancelAllOrders(bitmexClient))
+    .map((res) => {
+      if (res.length === 0) {
+        return `Digebugin warga bosqueee 🔨🔨🔨🔨🔨🔨\nPowered By: ${env.strategy}`
+      }
+      return `Opit BOSQUEEEE 💵💵💵💵💵💵\nPowered By: ${env.strategy}`
+    })
+    .catch((err) => {
+      logger.error(`Error polling limit and stop orders: ${err.stack}`)
+      return Rx.Observable.empty()
+    })
 }
 
 /**
@@ -154,6 +175,10 @@ const getOpenPositions = (bitmexClient) => {
   }
   return Rx.Observable.fromPromise(bitmexClient.makeRequest('GET', 'position', opts))
     .observeOn(Rx.Scheduler.asap)
+    .catch((err) => {
+      logger.error(`Error getting open positions: ${err.stack}`)
+      return Rx.Observable.empty()
+    })
 }
 
 /**
@@ -165,6 +190,10 @@ const getOpenPositions = (bitmexClient) => {
  */
 const cancelAllOrders = (bitmexClient) => {
   return Rx.Observable.fromPromise(bitmexClient.makeRequest('DELETE', 'order/all', { symbol: env.symbol }))
+    .catch((err) => {
+      logger.error(`Error cancelling orders: ${err.stack}`)
+      return Rx.Observable.empty()
+    })
 }
 
 /**
@@ -185,7 +214,7 @@ const generateMarketOrder = (bitmexClient, quantity, positionType) => {
     timeInForce: 'GoodTillCancel',
   }
   return Rx.Observable.fromPromise(bitmexClient.makeRequest('POST', 'order', marketOrderOpts))
-    .observeOn(Rx.Scheduler.asap)
+    .observeOn(Rx.Scheduler.async)
     .retryWhen((err) => err.delay(1000).take(env.orderRetries).concat(Rx.Observable.throw(err)))
 }
 
@@ -195,4 +224,5 @@ export {
   cancelAllOrders,
   getOpenPositions,
   generateMarketOrder,
+  generateOrderPolling,
 }
