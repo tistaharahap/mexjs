@@ -147,10 +147,9 @@ const generateOrderPolling = (bitmexClient, limitOrderId, stopOrderId) => {
     .switchMap(() => {
       return Rx.Observable.fromPromise(bitmexClient.makeRequest('GET', '/order', pollOpts))
         .observeOn(Rx.Scheduler.async)
-        .retryWhen((err) => err.delay(1000).take(env.orderRetries).concat(Rx.Observable.throw(err)))
         .catch((err) => {
           logger.error(`Error polling order to Bitmex: ${err.stack}`)
-          return Rx.Observable.empty()
+          return Rx.Observable.of([])
         })
     })
     .filter(res => Array.isArray(res))
