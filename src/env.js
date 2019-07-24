@@ -18,6 +18,7 @@ const env = {
   orderRetries: process.env.ORDER_RETRIES || 3,
   idealFractalsOnly: process.env.IDEAL_FRACTALS_ONLY || 0,
   name: process.env.NAME || os.hostname(),
+  vwmaSlBuffer: parseFloat(process.env.VWMA_SL_BUFFER) || 0.0,
 }
 
 export default env
