@@ -34,6 +34,7 @@ All strategy classes must implement a `filter()` method returnin `true` or `fals
 | `TRADE_ON_CLOSE` | When to trade, defaults to `1`, valid options are `0 1` |
 | `ORDER_RETRIES` | Max retries when order fails to submit, defaults to `3` |
 | `IDEAL_FRACTALS_ONLY` | Only calculate ideal fractals as last fractals, defaults to `0` |
+| `VWMA_SL_BUFFER` | Buffer to be added to VWMA SL when `TRADE_ON_CLOSE=0`, defaults to `0` |
 
 ## Running
 
