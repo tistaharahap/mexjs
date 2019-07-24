@@ -3,6 +3,7 @@ import Decimal from 'decimal.js'
 import { BitMexPlus } from 'bitmex-plus'
 import env from './env'
 import logger from './logger'
+import { sendPreTradeNotification } from './utils'
 
 /**
  * Generate orders to Bitmex
@@ -72,10 +73,13 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
       .toDecimalPlaces(0)
       .toNumber()
   } else {
-    const multiplier = positionType === 'short' ? 1.0 + (env.slInPercentage / 100) :
-      1.0 - (env.slInPercentage / 100)
-    slPrice = new Decimal(multiplier)
-      .times(entryPrice)
+    // const multiplier = positionType === 'short' ? 1.0 + (env.slInPercentage / 100) :
+    //   1.0 - (env.slInPercentage / 100)
+    // slPrice = new Decimal(multiplier)
+    //   .times(entryPrice)
+    //   .toDecimalPlaces(0)
+    //   .toNumber()
+    slPrice = new Decimal(lastCandle.vwma)
       .toDecimalPlaces(0)
       .toNumber()
   }
@@ -116,6 +120,18 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
     .catch((err) => {
       logger.error(`Error posting limit and stop orders: ${err.stack}`)
       return Rx.Observable.empty()
+    })
+    .switchMap((results) => {
+      const limitOrder = results[0]
+      const stopOrder = results[1]
+
+      const entryPrice = order.price
+      const tpPrice = limitOrder.price
+      const slPrice = stopOrder.price
+      const message = `Entry Price: ${entryPrice}\nTP Price: ${tpPrice}\nSL Price: ${slPrice}`
+      
+      return sendPreTradeNotification(message)
+        .map(() => results)
     })
     .switchMap((results) => {
       const limitOrderId = results[0].orderID

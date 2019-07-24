@@ -44,6 +44,11 @@ let WAIT_FOR_NEXT_UP_FRACTAL = true
 let WAIT_FOR_NEXT_DOWN_FRACTAL = true
 
 /**
+ * @type {boolean} State var for opened positions
+ */
+let IS_POSITION_OPEN = false
+
+/**
  * @type {BitMexPlus} BitMexPlus client for REST calls
  */
 const bitmexClient = new BitMexPlus({
@@ -105,6 +110,7 @@ const opts = {
  */
 const socket$ = Rx.Observable.webSocket(opts)
   // Filters for management of feeds and states
+  .filter(() => !IS_POSITION_OPEN)
   .filter(() => CANDLESTICKS.length > 0)
   .filter(data => data.table === 'trade' && data.action == 'insert' && data.data.length > 0)
   .filter(() => {
@@ -134,10 +140,16 @@ const socket$ = Rx.Observable.webSocket(opts)
   .switchMap(() => {
     if (env.strategy.endsWith('long')) {
       LAST_ORDER_UP_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastUpFractal
+      IS_POSITION_OPEN = true
       return generateOrders(bitmexClient, 'long', CANDLESTICKS[CANDLESTICKS.length - 1])
+        .catch(() => IS_POSITION_OPEN = false)
+        .do(() => IS_POSITION_OPEN = false)
     } else if (env.strategy.endsWith('short')) {
       LAST_ORDER_DOWN_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastDownFractal
+      IS_POSITION_OPEN = true
       return generateOrders(bitmexClient, 'short', CANDLESTICKS[CANDLESTICKS.length - 1])
+        .catch(() => IS_POSITION_OPEN = false)
+        .do(() => IS_POSITION_OPEN = false)
     } else {
       return Rx.Observable.empty()
     }
