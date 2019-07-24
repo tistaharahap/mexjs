@@ -71,7 +71,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
       }
 
       const vwmas = VWMA(closes, volumes, 13)
-      const vwmas34 = VWMA(closes, volumes, 34)
+      const vwmas8 = VWMA(closes, volumes, 8)
       const upFractals = env.idealFractalsOnly === 1 ? IdealUpFractal(highs) : UpFractal(highs)
       const downFractals = env.idealFractalsOnly === 1 ? IdealDownFractal(lows) : DownFractal(lows)
       const adxs = ADX.calculate({ high: highs, low: lows, close: closes, period: 34 })
@@ -91,7 +91,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
         // klines[n]['lastUpFractal'] = lastFractal.up
         // klines[n]['lastDownFractal'] = lastFractal.down
         klines[n]['vwma'] = v
-        klines[n]['vwma34'] = vwmas34[n]
+        klines[n]['vwma8'] = vwmas8[n]
       })
 
       // Get Resistance data
