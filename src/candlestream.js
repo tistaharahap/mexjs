@@ -27,7 +27,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
     binSize,
     count,
     reverse: true,
-    partial: env.tradeOnClose === '1' ? false : true,
+    partial: true,
   }
   return Rx.Observable.fromPromise(client.Trade.getBucketed(opts))
     .map((klines) => {

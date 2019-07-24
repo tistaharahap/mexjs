@@ -7,6 +7,7 @@ import os from 'os'
 
 const logConfigAndLastCandle = (candlesticks) => {
   const lastCandle = candlesticks[candlesticks.length - 1]
+  const beforeLastCandle = candlesticks[candlesticks.length - 2]
 
   logger.info(' ')
   logger.info('===========================================')
@@ -28,6 +29,7 @@ const logConfigAndLastCandle = (candlesticks) => {
   logger.info(`Open: ${lastCandle.open}`)
   logger.info(`High: ${lastCandle.high}`)
   logger.info(`Low: ${lastCandle.low}`)
+  logger.info(`Low2: ${beforeLastCandle.low}`)
   logger.info(`Close: ${lastCandle.close}`)
   logger.info(`Up Fractal: ${lastCandle.upFractal}`)
   logger.info(`Down Fractal: ${lastCandle.downFractal}`)
