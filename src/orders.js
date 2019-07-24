@@ -23,7 +23,7 @@ const setMargin = (bitmexClient) => {
     .retryWhen((err) => err.delay(1000).take(env.orderRetries).concat(Rx.Observable.throw(err)))
     .catch((err) => {
       logger.error(`Error setting leverage to Bitmex: ${err.stack}`)
-      return Rx.Observable.empty()
+      return Rx.Observable.of({})
     })
 }
 
@@ -40,7 +40,6 @@ const generateOrders = (bitmexClient, positionType, lastCandle) => {
     .observeOn(Rx.Scheduler.async)
     .catch((err) => {
       logger.error(`Error posting market buy order`)
-      console.log(err)
       return Rx.Observable.throw(err)
     })
     .delay(1000)
@@ -127,7 +126,7 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
 
       const entryPrice = order.price
       const tpPrice = limitOrder.price
-      const slPrice = stopOrder.price
+      const slPrice = stopOrder.stopPx
       const message = `Entry Price: ${entryPrice}\nTP Price: ${tpPrice}\nSL Price: ${slPrice}`
       
       return sendPreTradeNotification(message)
@@ -138,6 +137,10 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
       const stopOrderId = results[1].orderID
 
       return generateOrderPolling(bitmexClient, limitOrderId, stopOrderId)
+    })
+    .catch((err) => {
+      logger.error(`Error trying to poll orders: ${err.message}`)
+      return Rx.Observable.throw(err)
     })
     .observeOn(Rx.Scheduler.async)
 }
@@ -183,7 +186,7 @@ const generateOrderPolling = (bitmexClient, limitOrderId, stopOrderId) => {
     })
     .catch((err) => {
       logger.error(`Error polling limit and stop orders: ${err.stack}`)
-      return Rx.Observable.empty()
+      return Rx.Observable.throw(err)
     })
 }
 

@@ -1,4 +1,5 @@
-import Decimal from "decimal.js";
+import { SMA, AwesomeOscillator, WEMA } from 'technicalindicators'
+import Decimal from 'decimal.js'
 
 /**
  * Generate Volume Weighted Moving Average values for given time series
@@ -166,10 +167,130 @@ const IdealDownFractal = (lows) => {
     })
 }
 
+/**
+ * Generate AC
+ * 
+ * @param {Array} highs - Candle highs
+ * @param {Array} lows - Candle lows
+ * @param {Number} fastPeriod  - The period of the MA
+ * @param {Number} slowPeriod  - The period of the MA
+ * @param {Number} smoothPeriod  - The period of the MA
+ * 
+ * @return {Array}
+ */
+const AccelerationDecelerationOscillator = (highs, lows, fastPeriod, slowPeriod, smoothPeriod) => {
+  const ao = AwesomeOscillator.calculate({ fastPeriod: fastPeriod, high: highs, low: lows, slowPeriod: slowPeriod })
+  const ao_sma = SMA.calculate({ values: ao, period: smoothPeriod })
+  let ac = []
+  ao.forEach((x, i) => {
+    ac.push(x - ao_sma[i - smoothPeriod + 1])
+  })
+  return ac
+}
+
+/**
+ * Generate market facilitation index
+ * 
+ * @param {Array} highs - Candle highs
+ * @param {Array} lows - Candle lows
+ * @param {Array} volumes - Candle volumes
+ * 
+ * @return {Array}
+ */
+const MarketFacilitationIndex = (highs, lows, volumes) => {
+  return highs
+    .map((v, n) => {
+      const MFI0 = (v - lows[n]) / volumes[n]
+      const MFI1 = (highs[n - 1] - lows[n - 1]) / volumes[n - 1]
+      const MFIplus = MFI0 > MFI1
+      const MFIminus = MFI0 < MFI1
+      const volplus = volumes[n] > volumes[n - 1]
+      const volminus = volumes[n] < volumes[n - 1]
+      if (volplus && MFIplus) return 1 // Green MFI
+      if (volminus && MFIminus) return 2 // Fade MFI
+      if (volminus && MFIplus) return 3 // Fake MFI
+      if (volplus && MFIminus) return 4 // Squat MFI
+
+      return 0
+    })
+}
+
+/**
+ * Generate smoothed moving average
+ * 
+ * @param {Array} highs - Candle highs
+ * @param {Array} lows - Candle lows
+ * @param {Array} period - Period of MA
+ * 
+ * @return {Array}
+ */
+const SMMA = (highs, lows, period) => {
+  let median_prices = []
+  highs.forEach((x, i) => {
+    median_prices.push((x + lows[i]) / 2)
+  })
+  return WEMA.calculate({ values: median_prices, period: period })
+}
+
+/**
+ * Generate resistance
+ * 
+ * @param {Array} fractals - Candle fractals
+ * @param {Array} closes - Candle closes
+ * @param {Array} teeths - Candle teeths
+ * 
+ * @return {Array}
+ */
+const Resistance = (fractals, closes, teeths) => {
+  let resistances = []
+  fractals.forEach((v, n) => {
+    const closeAboveTeeth = teeths[n - 12] ? new Decimal(closes[n])
+      .greaterThan(teeths[n - 12]) : false
+
+    if (v !== null && closeAboveTeeth) {
+      resistances.push(v)
+    }
+    else {
+      resistances.push(null)
+    }
+  })
+  return resistances
+}
+
+/**
+ * Generate support
+ * 
+ * @param {Array} fractals - Candle fractals
+ * @param {Array} closes - Candle closes
+ * @param {Array} teeths - Candle teeths
+ * 
+ * @return {Array}
+ */
+const Support = (fractals, closes, teeths) => {
+  let supports = []
+  fractals.forEach((v, n) => {
+    const closeBelowTeeth = teeths[n - 12] ? new Decimal(closes[n])
+      .lessThan(teeths[n - 12]) : false
+
+    if (v !== null && closeBelowTeeth) {
+      supports.push(v)
+    }
+    else {
+      supports.push(null)
+    }
+  })
+  return supports
+}
+
 export {
   VWMA,
   UpFractal,
   DownFractal,
   IdealUpFractal,
   IdealDownFractal,
+  Support,
+  Resistance,
+  SMMA,
+  MarketFacilitationIndex,
+  AccelerationDecelerationOscillator,
 }

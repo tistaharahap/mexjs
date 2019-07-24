@@ -142,13 +142,19 @@ const socket$ = Rx.Observable.webSocket(opts)
       LAST_ORDER_UP_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastUpFractal
       IS_POSITION_OPEN = true
       return generateOrders(bitmexClient, 'long', CANDLESTICKS[CANDLESTICKS.length - 1])
-        .catch(() => IS_POSITION_OPEN = false)
+        .catch((err) => {
+          IS_POSITION_OPEN = false
+          return Rx.Observable.throw(err)
+        })
         .do(() => IS_POSITION_OPEN = false)
     } else if (env.strategy.endsWith('short')) {
       LAST_ORDER_DOWN_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastDownFractal
       IS_POSITION_OPEN = true
       return generateOrders(bitmexClient, 'short', CANDLESTICKS[CANDLESTICKS.length - 1])
-        .catch(() => IS_POSITION_OPEN = false)
+        .catch((err) => {
+          IS_POSITION_OPEN = false
+          return Rx.Observable.throw(err)
+        })
         .do(() => IS_POSITION_OPEN = false)
     } else {
       return Rx.Observable.empty()
@@ -157,7 +163,10 @@ const socket$ = Rx.Observable.webSocket(opts)
 
   // Send telegram message after a successful trade (or not)
   .switchMap(msg => sendPostTradeNotification(msg))
-  .catch(err => logger.error(err.stack))
+  .catch((err) => {
+    logger.error(err.stack)
+    return Rx.Observable.throw(err)
+  })
 
 // Get and cancel any open positions
 getOpenPositions(bitmexClient)
