@@ -78,7 +78,7 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
     //   .times(entryPrice)
     //   .toDecimalPlaces(0)
     //   .toNumber()
-    slPrice = new Decimal(lastCandle.vwma)
+    slPrice = new Decimal(lastCandle.vwma8)
       .toDecimalPlaces(0)
       .toNumber()
   }
