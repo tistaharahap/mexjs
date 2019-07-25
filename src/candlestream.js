@@ -80,7 +80,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
       vwmas.forEach((v, n) => {
         // klines[n]['upFractal'] = n !== klines.length - 1 ? upFractals[n] : null
         // klines[n]['downFractal'] = n !== klines.length - 1 ? downFractals[n] : null
-        
+
         // if (upFractals[n] !== null) {
         //   lastFractal.up = n !== vwmas.length - 1 ? upFractals[n] : null
         // }
@@ -95,7 +95,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
       })
 
       // Get Resistance data
-      let resistances = Resistance(upFractals, highs, teeths)
+      let resistances = Resistance(upFractals, lows, jaws, teeths, lips)
       resistances = resistances.slice(0, resistances.length - 3)
 
       resistances.forEach((v, n) => {
@@ -103,11 +103,11 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
         if (v !== null) {
           lastFractal.up = v
         }
-        klines[n+3]['lastUpFractal'] = lastFractal.up
+        klines[n + 3]['lastUpFractal'] = lastFractal.up
       })
 
       // Get Resistance data
-      let supports = Support(downFractals, lows, teeths)
+      let supports = Support(downFractals, highs, jaws, teeths, lips)
       supports = supports.slice(0, supports.length - 3)
 
       supports.forEach((v, n) => {
@@ -115,7 +115,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
         if (v !== null) {
           lastFractal.down = v
         }
-        klines[n+3]['lastDownFractal'] = lastFractal.down
+        klines[n + 3]['lastDownFractal'] = lastFractal.down
       })
 
       klines = klines
