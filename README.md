@@ -41,5 +41,5 @@ All strategy classes must implement a `filter()` method returnin `true` or `fals
 Docker is recommended.
 
 ```shell
-$ docker run -d --name mexjs -e API_KEY=your_api_key -e API_SECRET=your_api_secret -e TP_IN_PERCENTAGE=0.4 -e SL_IN_PERCENTAGE=0.5 -e USE_TESTNET=0 -e MARGIN=50 -e STRATEGY=nektrabar-short tistaharahap/mexjs:latest
+$ docker run -d --name mexjs -e IDEAL_FRACTALS_ONLY=0 -e API_KEY=your_api_key -e API_SECRET=your_api_secret -e TP_IN_PERCENTAGE=0.125 -e SL_IN_PERCENTAGE=0.5 -e USE_TESTNET=0 -e MARGIN=50 -e TRADE_ON_CLOSE=0 -e STRATEGY=fractalligator-long -e ORDER_QUANTITY=10000 -e NAME=name_your_container -e VWMA_SL_BUFFER=10.0 --restart unless-stopped tistaharahap/mexjs:latest
 ```
