@@ -96,26 +96,26 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
 
       // Get Resistance data
       let resistances = Resistance(upFractals, highs, teeths)
-      resistances = resistances.slice(0, resistances.length - 2)
+      resistances = resistances.slice(0, resistances.length - 3)
 
       resistances.forEach((v, n) => {
         klines[n]['resistance'] = v
         if (v !== null) {
           lastFractal.up = v
         }
-        klines[n+2]['lastUpFractal'] = lastFractal.up
+        klines[n+3]['lastUpFractal'] = lastFractal.up
       })
 
       // Get Resistance data
       let supports = Support(downFractals, lows, teeths)
-      supports = supports.slice(0, supports.length - 2)
+      supports = supports.slice(0, supports.length - 3)
 
       supports.forEach((v, n) => {
         klines[n]['support'] = v
         if (v !== null) {
           lastFractal.down = v
         }
-        klines[n+2]['lastDownFractal'] = lastFractal.down
+        klines[n+3]['lastDownFractal'] = lastFractal.down
       })
 
       klines = klines
