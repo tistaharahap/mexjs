@@ -7,6 +7,9 @@ import FractalBreakoutShort from './fractalbreakout-short'
 import Fractal3BreakoutLong from './fractal3breakout-long'
 import FractalligatorLong from './fractalligator-long'
 import FractalligatorShort from './fractalligator-short'
+import Wisemen3Long from './wisemen3-long'
+import Wisemen3Short from './wisemen3-short'
+
 
 const getStrategyByName = (name, candlesticks, feed) => {
   switch (name) {
@@ -28,6 +31,10 @@ const getStrategyByName = (name, candlesticks, feed) => {
       return new FractalligatorLong(candlesticks, feed)
     case 'fractalligator-short':
       return new FractalligatorShort(candlesticks, feed)
+    case 'wisemen3-long':
+      return new Wisemen3Long(candlesticks, feed)
+    case 'wisemen3-short':
+      return new Wisemen3Short(candlesticks, feed)
     default:
       return null
   }

@@ -18,9 +18,9 @@ const VWMA = (closes, volumes, period) => {
 
     const firstIndex = i - period
     const closesWithPeriod = closes
-      .slice(firstIndex,i)
+      .slice(firstIndex, i)
     const volsWithPeriod = volumes
-      .slice(firstIndex,i)
+      .slice(firstIndex, i)
     const closesValue = closesWithPeriod
       .reduce((x, y, i) => {
         const cv = y * volsWithPeriod[i]
@@ -66,7 +66,7 @@ const UpFractal = (highs) => {
       const up5 = ((highs[n - 6] < highs[n]) && (highs[n - 5] < highs[n]) && (highs[n - 4] === highs[n]) && (
         highs[n - 3] <= highs[n]) && (highs[n - 2] == highs[n]) && (highs[n - 1] <= highs[n]) && (
           highs[n + 1] < highs[n]) && (highs[n + 2] < highs[n]))
-        
+
       if (up1 || up2 || up3 || up4 || up5) {
         return v
       }
@@ -106,7 +106,7 @@ const DownFractal = (lows) => {
       const low5 = ((lows[n - 6] > lows[n]) && (lows[n - 5] > lows[n]) && (lows[n - 4] === lows[n]) && (
         lows[n - 3] >= lows[n]) && (lows[n - 2] == lows[n]) && (lows[n - 1] >= lows[n]) && (
           lows[n + 1] > lows[n]) && (lows[n + 2] > lows[n]))
-      
+
       if (low1 || low2 || low3 || low4 || low5) {
         return v
       }
@@ -236,18 +236,25 @@ const SMMA = (highs, lows, period) => {
  * Generate resistance
  * 
  * @param {Array} fractals - Candle fractals
- * @param {Array} closes - Candle closes
+ * @param {Array} sources - Candle sources
+ * @param {Array} jaws - Candle jaws
  * @param {Array} teeths - Candle teeths
+ * @param {Array} lips - Candle lips
  * 
  * @return {Array}
  */
-const Resistance = (fractals, closes, teeths) => {
+const Resistance = (fractals, sources, jaws, teeths, lips) => {
   let resistances = []
   fractals.forEach((v, n) => {
-    const closeAboveTeeth = teeths[n - 12] ? new Decimal(closes[n])
+    const source = new Decimal(sources[n])
+    const sourceAboveJaw = jaws[n - 20] ? source
+      .greaterThan(jaws[n - 20]) : false
+    const sourceAboveTeeth = teeths[n - 12] ? source
       .greaterThan(teeths[n - 12]) : false
+    const sourceAboveLips = lips[n - 7] ? source
+      .greaterThan(lips[n - 7]) : false
 
-    if (v !== null && closeAboveTeeth) {
+    if (v !== null && sourceAboveJaw && sourceAboveTeeth && sourceAboveLips) {
       resistances.push(v)
     }
     else {
@@ -261,18 +268,25 @@ const Resistance = (fractals, closes, teeths) => {
  * Generate support
  * 
  * @param {Array} fractals - Candle fractals
- * @param {Array} closes - Candle closes
+ * @param {Array} sources - Candle sources
+ * @param {Array} jaws - Candle jaws
  * @param {Array} teeths - Candle teeths
+ * @param {Array} lips - Candle lips
  * 
  * @return {Array}
  */
-const Support = (fractals, closes, teeths) => {
+const Support = (fractals, sources, jaws, teeths, lips) => {
   let supports = []
   fractals.forEach((v, n) => {
-    const closeBelowTeeth = teeths[n - 12] ? new Decimal(closes[n])
+    const source = new Decimal(sources[n])
+    const sourceBelowJaw = jaws[n - 20] ? source
+      .lessThan(jaws[n - 20]) : false
+    const sourceBelowTeeth = teeths[n - 12] ? source
       .lessThan(teeths[n - 12]) : false
+    const sourceBelowLips = lips[n - 7] ? source
+      .lessThan(lips[n - 7]) : false
 
-    if (v !== null && closeBelowTeeth) {
+    if (v !== null && sourceBelowJaw && sourceBelowTeeth && sourceBelowLips) {
       supports.push(v)
     }
     else {
