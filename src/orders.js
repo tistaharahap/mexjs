@@ -60,15 +60,36 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
   const marginMultiplier = positionType === 'long' ? 1.0 + (env.tpInPercentage / 100) :
     1.0 - (env.tpInPercentage / 100)
 
-  const tpPrice = entryPrice
-    .times(marginMultiplier)
-    .toDecimalPlaces(0)
-    .toNumber()
+  const stopMultiplier = positionType === 'long' ? 1.0 - (env.slInPercentage / 100) :
+    1.0 + (env.slInPercentage / 100)
+
+  let tpPrice = null
+  if (env.tpStrategy === 'PERCENTAGE') {
+    tpPrice = entryPrice
+      .times(marginMultiplier)
+      .toDecimalPlaces(0)
+      .toNumber()
+  } else if (env.tpStrategy === 'PIP') {
+    tpPrice = entryPrice
+      .add(positionType === 'long' ? env.tpInPip : env.tpInPip * -1)
+      .toDecimalPlaces(0)
+      .toNumber()
+  } else {
+    tpPrice = entryPrice
+      .times(marginMultiplier)
+      .toDecimalPlaces(0)
+      .toNumber()
+  }
   
   let slPrice = null
-  if (env.tradeOnClose === 1) {
-    slPrice = new Decimal(lastCandle.vwma)
-      .add(positionType === 'long' ? -10.0 : 10.0)
+  if (env.slStrategy === 'PERCENTAGE') {
+    slPrice = entryPrice
+      .times(stopMultiplier)
+      .toDecimalPlaces(0)
+      .toNumber()
+  } else if (env.slStrategy === 'PIP') {
+    slPrice = entryPrice
+      .add(positionType === 'long' ? env.slInPip * -1 : env.slInPip)
       .toDecimalPlaces(0)
       .toNumber()
   } else {

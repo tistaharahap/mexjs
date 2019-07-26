@@ -25,8 +25,12 @@ All strategy classes must implement a `filter()` method returnin `true` or `fals
 | `CANDLE_INTERVAL_IN_SECONDS` | Interval to fetch new candles, defaults to `10` |
 | `TF` | Timeframe for candles, defaults to `5m`, valid choices are `1m  5m  1h  1d` |
 | `SYMBOL` | The symbol in Bitmex we're trading for, defaults to `XBTUSD` |
+| `TP_STRATEGY` | Take profit strategy, defaults to `PERCENTAGE PIP OTHERS` |
 | `TP_IN_PERCENTAGE` | Take profit in percentage, defaults to `0.4` |
+| `TP_IN_PIP` | Take profit in pip, defaults to `25.0` |
+| `SL_STRATEGY` | Stop profit strategy, defaults to `PERCENTAGE PIP OTHERS` |
 | `SL_IN_PERCENTAGE` | Stop loss in percentage, defaults to `0.5` |
+| `SL_IN_PIP` | Stop loss in pip, defaults to `25.0` |
 | `USE_TESTNET` | Use testnet or not, defaults to `0`, valid choices are `0  1` |
 | `ORDER_QUANTITY` | Order quantity for each order, defaults to `50` |
 | `MARGIN` | Leverage to be used, defaults to `50` |
@@ -41,5 +45,5 @@ All strategy classes must implement a `filter()` method returnin `true` or `fals
 Docker is recommended.
 
 ```shell
-$ docker run -d --name mexjs -e IDEAL_FRACTALS_ONLY=0 -e API_KEY=your_api_key -e API_SECRET=your_api_secret -e TP_IN_PERCENTAGE=0.125 -e SL_IN_PERCENTAGE=0.5 -e USE_TESTNET=0 -e MARGIN=50 -e TRADE_ON_CLOSE=0 -e STRATEGY=fractalligator-long -e ORDER_QUANTITY=10000 -e NAME=name_your_container -e VWMA_SL_BUFFER=10.0 --restart unless-stopped tistaharahap/mexjs:latest
+$ docker run -d --name mexjs -e API_KEY=your_api_key -e API_SECRET=your_api_secret -e NAME=name_your_container -e STRATEGY=wisemen3-long -e ORDER_QUANTITY=10000 -e MARGIN=50 -e TF=5m -e TP_STRATEGY=PERCENTAGE -e TP_IN_PERCENTAGE=0.25 -e TP_IN_PIP=25.0 -e SL_STRATEGY=PERCENTAGE -e SL_IN_PERCENTAGE=0.25 -e SL_IN_PIP=25.0 -e VWMA_SL_BUFFER=10.0 -e IDEAL_FRACTALS_ONLY=0 -e USE_TESTNET=0 -e TRADE_ON_CLOSE=0 --restart unless-stopped tistaharahap/mexjs:latest
 ```
