@@ -3,8 +3,14 @@ import env from './env'
 import sendTelegramMessage from './telegram-utils'
 import Rx from '@reactivex/rxjs'
 import crypto from 'crypto'
-import os from 'os'
 
+/**
+ * Log candlestream to stdout
+ * 
+ * @param {Array} candlesticks - The candlesticks from Bitmex
+ * 
+ * @return {void}
+ */
 const logConfigAndLastCandle = (candlesticks) => {
   const lastCandle = candlesticks[candlesticks.length - 1]
   const beforeLastCandle = candlesticks[candlesticks.length - 2]
@@ -47,16 +53,37 @@ const logConfigAndLastCandle = (candlesticks) => {
   logger.info('===========================================')
 }
 
+/**
+ * Sends a pre trade notification
+ * 
+ * @param {string} res - The message to be sent
+ * 
+ * @return {Rx.Observable}
+ */
 const sendPreTradeNotification = (res) => {
-  const message = `💵💵*Mexjs*💵💵\n\n${res}\n\n${env.name}`
+  const message = `💵💵*Mexjs ${env.version}*💵💵\n\n${res}\n\n${env.name}`
   return sendTelegramMessage(message)
 }
 
+/**
+ * Sends a post trade notification
+ * 
+ * @param {string} res - The message to be sent
+ * 
+ * @return {Rx.Observable}
+ */
 const sendPostTradeNotification = (res) => {
-  const message = `💵💵*Mexjs*💵💵\n\n${res}\n\n${env.name}`
+  const message = `💵💵*Mexjs ${env.version}*💵💵\n\n${res}\n\n${env.name}`
   return sendTelegramMessage(message)
 }
 
+/**
+ * Start something at a specified second
+ * 
+ * @param {number} initSecond - The exact second you wanna it to start
+ * 
+ * @return {Rx.Observable}
+ */
 const getInitSecond = (initSecond) => {
   return Rx.Observable.interval(1000)
     .switchMap(() => {
@@ -67,6 +94,13 @@ const getInitSecond = (initSecond) => {
     .take(1)
 }
 
+/**
+ * Websocket auth signature generator
+ * 
+ * @param {string} apiSecret - Bitmex API secret
+ * 
+ * @return {object}
+ */
 const signatureForWebsocketAuth = (apiSecret = null) => {
   const expires = Math.round(new Date().getTime() / 1000) + 60
   const data = `GET/realtime${expires}`
