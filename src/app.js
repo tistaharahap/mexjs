@@ -55,7 +55,7 @@ let IS_POSITION_OPEN = false
 const bitmexClient = new BitMexPlus({
   apiKeyID: env.apiKey,
   apiKeySecret: env.apiSecret,
-  testnet: env.useTestnet === 1,
+  testnet: parseInt(env.useTestnet) === 1,
 })
 
 // Cancel all order on first run

@@ -72,12 +72,6 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
       .toDecimalPlaces(0)
       .toNumber()
   } else {
-    // const multiplier = positionType === 'short' ? 1.0 + (env.slInPercentage / 100) :
-    //   1.0 - (env.slInPercentage / 100)
-    // slPrice = new Decimal(multiplier)
-    //   .times(entryPrice)
-    //   .toDecimalPlaces(0)
-    //   .toNumber()
     slPrice = new Decimal(lastCandle.vwma8)
       .add(positionType === 'long' ? env.vwmaSlBuffer * -1 : env.vwmaSlBuffer)
       .toDecimalPlaces(0)
@@ -128,7 +122,7 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
       const entryPrice = order.price
       const tpPrice = limitOrder.price
       const slPrice = stopOrder.stopPx
-      const message = `Entry Price: ${entryPrice}\nTP Price: ${tpPrice}\nSL Price: ${slPrice}`
+      const message = `TF: ${env.tf}\nTrade on Close: ${env.tradeOnClose}\nOrder Quantity: $${env.orderQuantity}\nLeverage: ${env.margin}\nStrategy: ${env.strategy}\n\nEntry Price: ${entryPrice}\nTP Price: ${tpPrice}\nSL Price: ${slPrice}`
       
       return sendPreTradeNotification(message)
         .map(() => results)
@@ -137,7 +131,7 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
       const limitOrderId = results[0].orderID
       const stopOrderId = results[1].orderID
 
-      return generateOrderPolling(bitmexClient, limitOrderId, stopOrderId)
+      return generateOrderPolling(bitmexClient, limitOrderId, stopOrderId, order)
     })
     .catch((err) => {
       logger.error(`Error trying to poll orders: ${err.message}`)
@@ -152,10 +146,11 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
  * @param {BitMexPlus} bitmexClient - BitMexPlus client instance
  * @param {string} limitOrderId - Limit close order id
  * @param {string} stopOrderId - Stop order id
+ * @param {object} marketBuyOrder - Market buy order
  * 
  * @return {Rx.Observable}
  */
-const generateOrderPolling = (bitmexClient, limitOrderId, stopOrderId) => {
+const generateOrderPolling = (bitmexClient, limitOrderId, stopOrderId, marketBuyOrder) => {
   const pollOpts = {
     symbol: env.symbol,
     count: 2,
@@ -178,12 +173,48 @@ const generateOrderPolling = (bitmexClient, limitOrderId, stopOrderId) => {
     .filter(res => res[0].ordStatus === 'Filled' || res[0].ordStatus === 'Canceled' || res[1].ordStatus === 'Filled' || res[1].ordStatus === 'Canceled')
     .take(1)
     .do(() => logger.info('Cancelling remaining active order'))
-    .switchMap(() => cancelAllOrders(bitmexClient))
-    .map((res) => {
-      if (res.length === 0) {
-        return `Digebugin warga bosqueee 🔨🔨🔨🔨🔨🔨\nPowered By: ${env.strategy}`
-      }
-      return `Opit BOSQUEEEE 💵💵💵💵💵💵\nPowered By: ${env.strategy}`
+    .switchMap((closeAndStopOrders) => {
+      const stopTriggered = closeAndStopOrders[1].triggered === 'StopOrderTriggered'
+
+      const entryPrice = new Decimal(marketBuyOrder.avgPx)
+      const exitPrice = new Decimal(stopTriggered ? closeAndStopOrders[1].avgPx : closeAndStopOrders[0].avgPx)
+
+      return cancelAllOrders(bitmexClient)
+        .map(() => {
+          // (0,075%+0,05%-0,025%)*50*100
+          const estimatedFees = !stopTriggered ? new Decimal(0.075 / 100)
+            .add(0.05 / 100)
+            .minus(0.025 / 100)
+            .times(env.margin)
+            .times(100) :
+              new Decimal(0.075 / 100)
+                .add(0.05 / 100)
+                .times(env.margin)
+                .times(100)
+          const pl = exitPrice
+            .div(entryPrice)
+            .minus(1.0)
+            .abs()
+            .times(100)
+            .times(env.margin)
+            .add(!stopTriggered ? estimatedFees.times(-1) : estimatedFees)
+            .toDP(2)
+            .toString()
+          
+          let message = ''
+          
+          if (stopTriggered) {
+            // Loss
+            message = 'Digebugin warga bosqueee 🔨🔨🔨🔨🔨🔨'
+          } else {
+            // Opit
+            message = 'Opit BOSQUEEEE 💵💵💵💵💵💵'
+          }
+
+          message = `${message}\n\nP&L with estimated fees: ${pl}%\nEntry Price: ${entryPrice}\nExit Price: ${exitPrice}\n\nPowered By: ${env.strategy}`
+          
+          return message
+        })
     })
     .catch((err) => {
       logger.error(`Error polling limit and stop orders: ${err.stack}`)
