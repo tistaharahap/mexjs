@@ -247,6 +247,12 @@ const Resistance = (fractals, sources, jaws, teeths, lips) => {
   let resistances = []
   fractals.forEach((v, n) => {
     const source = new Decimal(sources[n])
+    const lipsAboveTeeth = (lips[n - 7] && teeths[n - 12]) ? new Decimal(lips[n - 7])
+      .greaterThan(teeths[n - 12]) : false
+    const teethAboveJaw = (teeths[n - 12] && jaws[n - 20]) ? new Decimal(teeths[n - 12])
+      .greaterThan(jaws[n - 20]) : false
+    const alligatorAwakens = lipsAboveTeeth && teethAboveJaw
+
     const sourceAboveJaw = jaws[n - 20] ? source
       .greaterThan(jaws[n - 20]) : false
     const sourceAboveTeeth = teeths[n - 12] ? source
@@ -254,7 +260,7 @@ const Resistance = (fractals, sources, jaws, teeths, lips) => {
     const sourceAboveLips = lips[n - 7] ? source
       .greaterThan(lips[n - 7]) : false
 
-    if (v !== null && sourceAboveJaw && sourceAboveTeeth && sourceAboveLips) {
+    if (v !== null && sourceAboveJaw && sourceAboveTeeth && sourceAboveLips && alligatorAwakens) {
       resistances.push(v)
     }
     else {
@@ -279,6 +285,12 @@ const Support = (fractals, sources, jaws, teeths, lips) => {
   let supports = []
   fractals.forEach((v, n) => {
     const source = new Decimal(sources[n])
+    const lipsBelowTeeth = (lips[n - 7] && teeths[n - 12]) ? new Decimal(lips[n - 7])
+      .lessThan(teeths[n - 12]) : false
+    const teethBelowJaw = (teeths[n - 12] && jaws[n - 20]) ? new Decimal(teeths[n - 12])
+      .lessThan(jaws[n - 20]) : false
+    const alligatorAwakens = lipsBelowTeeth && teethBelowJaw
+
     const sourceBelowJaw = jaws[n - 20] ? source
       .lessThan(jaws[n - 20]) : false
     const sourceBelowTeeth = teeths[n - 12] ? source
@@ -286,7 +298,7 @@ const Support = (fractals, sources, jaws, teeths, lips) => {
     const sourceBelowLips = lips[n - 7] ? source
       .lessThan(lips[n - 7]) : false
 
-    if (v !== null && sourceBelowJaw && sourceBelowTeeth && sourceBelowLips) {
+    if (v !== null && sourceBelowJaw && sourceBelowTeeth && sourceBelowLips && alligatorAwakens) {
       supports.push(v)
     }
     else {

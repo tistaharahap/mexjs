@@ -55,7 +55,7 @@ let IS_POSITION_OPEN = false
 const bitmexClient = new BitMexPlus({
   apiKeyID: env.apiKey,
   apiKeySecret: env.apiSecret,
-  testnet: parseInt(env.useTestnet) === 1,
+  testnet: +env.useTestnet === 1,
 })
 
 // Cancel all order on first run
@@ -69,7 +69,7 @@ const candleStreamInterval$ = Rx.Observable
   .switchMap(() => generateCandleStream(env.apiKey, env.apiSecret, env.symbol, env.tf, 300))
   .do((res) => {
     const lastCandle = res[res.length - 1]
-    
+
     if (env.strategy.endsWith('long')) {
       if (FIRST_LAST_UP_FRACTAL === null) {
         FIRST_LAST_UP_FRACTAL = lastCandle.lastUpFractal
@@ -83,7 +83,7 @@ const candleStreamInterval$ = Rx.Observable
       }
       if (FIRST_LAST_DOWN_FRACTAL !== lastCandle.lastDownFractal) {
         WAIT_FOR_NEXT_DOWN_FRACTAL = false
-      } 
+      }
     }
   })
   .do(res => logConfigAndLastCandle(res))
@@ -102,7 +102,7 @@ getInitSecond(1)
  * @type {JSON} The options for Bitmex websocket connection
  */
 const opts = {
-  url: env.useTestnet === 1 ? 'wss://testnet.bitmex.com/realtime' : 'wss://www.bitmex.com/realtime',
+  url: +env.useTestnet === 1 ? 'wss://testnet.bitmex.com/realtime' : 'wss://www.bitmex.com/realtime',
   WebSocketCtor: WebSocket,
 }
 
@@ -117,13 +117,13 @@ const socket$ = Rx.Observable.webSocket(opts)
     const index = env.tradeOnClose === 1 ? -1 : -2
     const lastCandle = CANDLESTICKS[CANDLESTICKS.length + index]
     if (env.strategy.endsWith('long')) {
-      const condition = new Decimal(lastCandle.high)
+      const condition = new Decimal(lastCandle.close)
         .greaterThan(lastCandle.lastUpFractal)
       if (condition) {
         LAST_ORDER_UP_FRACTAL = lastCandle.lastUpFractal
       }
     } else {
-      const condition = new Decimal(lastCandle.low)
+      const condition = new Decimal(lastCandle.close)
         .lessThan(lastCandle.lastDownFractal)
       if (condition) {
         LAST_ORDER_DOWN_FRACTAL = lastCandle.lastDownFractal
@@ -215,5 +215,5 @@ getOpenPositions(bitmexClient)
   .subscribe(() => {
     logger.info('Done checking for open positions, going to start Websocket feed from Bitmex')
     socket$.subscribe()
-    socket$.next(JSON.stringify({ op: 'subscribe', args: `trade:${env.symbol}`}))
+    socket$.next(JSON.stringify({ op: 'subscribe', args: `trade:${env.symbol}` }))
   })
