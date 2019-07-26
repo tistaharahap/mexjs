@@ -64,12 +64,12 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
     1.0 + (env.slInPercentage / 100)
 
   let tpPrice = null
-  if env.tpStrategy === 'PERCENTAGE' {
+  if (env.tpStrategy === 'PERCENTAGE') {
     tpPrice = entryPrice
       .times(marginMultiplier)
       .toDecimalPlaces(0)
       .toNumber()
-  } else if env.tpStrategy === 'PIP' {
+  } else if (env.tpStrategy === 'PIP') {
     tpPrice = entryPrice
       .add(positionType === 'long' ? env.tpInPip : env.tpInPip * -1)
       .toDecimalPlaces(0)
@@ -82,12 +82,12 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
   }
   
   let slPrice = null
-  if env.slStrategy === 'PERCENTAGE' {
+  if (env.slStrategy === 'PERCENTAGE') {
     slPrice = entryPrice
       .times(stopMultiplier)
       .toDecimalPlaces(0)
       .toNumber()
-  } else if env.slStrategy === 'PIP' {
+  } else if (env.slStrategy === 'PIP') {
     slPrice = entryPrice
       .add(positionType === 'long' ? env.slInPip * -1 : env.slInPip)
       .toDecimalPlaces(0)
