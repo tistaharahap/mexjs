@@ -117,13 +117,13 @@ const socket$ = Rx.Observable.webSocket(opts)
     const index = env.tradeOnClose === 1 ? -1 : -2
     const lastCandle = CANDLESTICKS[CANDLESTICKS.length + index]
     if (env.strategy.endsWith('long')) {
-      const condition = new Decimal(lastCandle.close)
+      const condition = new Decimal(lastCandle.high)
         .greaterThan(lastCandle.lastUpFractal)
       if (condition) {
         LAST_ORDER_UP_FRACTAL = lastCandle.lastUpFractal
       }
     } else {
-      const condition = new Decimal(lastCandle.close)
+      const condition = new Decimal(lastCandle.low)
         .lessThan(lastCandle.lastDownFractal)
       if (condition) {
         LAST_ORDER_DOWN_FRACTAL = lastCandle.lastDownFractal
