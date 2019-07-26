@@ -25,8 +25,12 @@ All strategy classes must implement a `filter()` method returnin `true` or `fals
 | `CANDLE_INTERVAL_IN_SECONDS` | Interval to fetch new candles, defaults to `10` |
 | `TF` | Timeframe for candles, defaults to `5m`, valid choices are `1m  5m  1h  1d` |
 | `SYMBOL` | The symbol in Bitmex we're trading for, defaults to `XBTUSD` |
+| `TP_STRATEGY` | Take profit strategy, defaults to `PERCENTAGE PIP OTHERS` |
 | `TP_IN_PERCENTAGE` | Take profit in percentage, defaults to `0.4` |
+| `TP_IN_PIP` | Take profit in pip, defaults to `25.0` |
+| `SL_STRATEGY` | Stop profit strategy, defaults to `PERCENTAGE PIP OTHERS` |
 | `SL_IN_PERCENTAGE` | Stop loss in percentage, defaults to `0.5` |
+| `SL_IN_PIP` | Stop loss in pip, defaults to `25.0` |
 | `USE_TESTNET` | Use testnet or not, defaults to `0`, valid choices are `0  1` |
 | `ORDER_QUANTITY` | Order quantity for each order, defaults to `50` |
 | `MARGIN` | Leverage to be used, defaults to `50` |
