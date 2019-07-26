@@ -251,7 +251,7 @@ const Resistance = (fractals, sources, jaws, teeths, lips) => {
       .greaterThan(teeths[n - 12]) : false
     const teethAboveJaw = (teeths[n - 12] && jaws[n - 20]) ? new Decimal(teeths[n - 12])
       .greaterThan(jaws[n - 20]) : false
-    const alligatorEating = lipsAboveTeeth && teethAboveJaw
+    const alligatorAwakens = lipsAboveTeeth && teethAboveJaw
 
     const sourceAboveJaw = jaws[n - 20] ? source
       .greaterThan(jaws[n - 20]) : false
@@ -260,7 +260,7 @@ const Resistance = (fractals, sources, jaws, teeths, lips) => {
     const sourceAboveLips = lips[n - 7] ? source
       .greaterThan(lips[n - 7]) : false
 
-    if (v !== null && sourceAboveJaw && sourceAboveTeeth && sourceAboveLips && alligatorEating) {
+    if (v !== null && sourceAboveJaw && sourceAboveTeeth && sourceAboveLips && alligatorAwakens) {
       resistances.push(v)
     }
     else {
@@ -289,7 +289,7 @@ const Support = (fractals, sources, jaws, teeths, lips) => {
       .lessThan(teeths[n - 12]) : false
     const teethBelowJaw = (teeths[n - 12] && jaws[n - 20]) ? new Decimal(teeths[n - 12])
       .lessThan(jaws[n - 20]) : false
-    const alligatorEating = lipsBelowTeeth && teethBelowJaw
+    const alligatorAwakens = lipsBelowTeeth && teethBelowJaw
 
     const sourceBelowJaw = jaws[n - 20] ? source
       .lessThan(jaws[n - 20]) : false
@@ -298,7 +298,7 @@ const Support = (fractals, sources, jaws, teeths, lips) => {
     const sourceBelowLips = lips[n - 7] ? source
       .lessThan(lips[n - 7]) : false
 
-    if (v !== null && sourceBelowJaw && sourceBelowTeeth && sourceBelowLips && alligatorEating) {
+    if (v !== null && sourceBelowJaw && sourceBelowTeeth && sourceBelowLips && alligatorAwakens) {
       supports.push(v)
     }
     else {
