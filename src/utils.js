@@ -46,6 +46,7 @@ const logConfigAndLastCandle = (candlesticks) => {
   logger.info(`Jaw: ${lastCandle.jaw}`)
   logger.info(`VWMA: ${lastCandle.vwma}`)
   logger.info(`VWMA8: ${lastCandle.vwma8}`)
+  logger.info(`VWMA21: ${lastCandle.vwma21}`)
   logger.info(`ADX: ${lastCandle.adx}`)
   logger.info(`PDI: ${lastCandle.pdi}`)
   logger.info(`MDI: ${lastCandle.mdi}`)
