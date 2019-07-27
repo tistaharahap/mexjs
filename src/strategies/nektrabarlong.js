@@ -60,11 +60,13 @@ class NektrabarLong extends Strategy {
   vwmaCrossCandle() {
     const lastCandle = this.candlesticks[this.candlesticks.length - 1]
     const vwmaAboveLow = new Decimal(lastCandle.low)
-      .lessThanOrEqualTo(lastCandle.vwma)
+      .lessThan(lastCandle.vwma)
     const vwmaBelowHigh = new Decimal(lastCandle.high)
-      .greaterThanOrEqualTo(lastCandle.vwma)
+      .greaterThan(lastCandle.vwma)
+    const vwmaAboveFractal = new Decimal(lastCandle.vwma)
+      .greaterThan(lastCandle.lastUpFractal)
 
-    return vwmaAboveLow && vwmaBelowHigh
+    return vwmaAboveLow && vwmaBelowHigh && vwmaAboveFractal
   }
 }
 
