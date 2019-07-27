@@ -66,7 +66,7 @@ class NektrabarShort extends Strategy {
     const vwmaBelowFractal = new Decimal(lastCandle.vwma)
       .lessThan(lastCandle.lastDownFractal)
 
-    return vwmaAboveLow && vwmaBelowHigh
+    return vwmaAboveLow && vwmaBelowHigh && vwmaBelowFractal
   }
 }
 
