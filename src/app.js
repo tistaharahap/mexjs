@@ -7,7 +7,7 @@ import { generateOrders, setMargin, cancelAllOrders, getOpenPositions, generateM
 import logger from './logger'
 import { getStrategyByName } from './strategies'
 import { logConfigAndLastCandle, sendPostTradeNotification, getInitSecond } from './utils'
-import Decimal from 'decimal.js';
+// import Decimal from 'decimal.js';
 
 /**
  * @type {Array} Candlesticks state var
@@ -113,23 +113,23 @@ const socket$ = Rx.Observable.webSocket(opts)
   // Filters for management of feeds and states
   .filter(() => !IS_POSITION_OPEN)
   .filter(() => CANDLESTICKS.length > 0)
-  .do(() => {
-    const index = env.tradeOnClose === 1 ? -1 : -2
-    const lastCandle = CANDLESTICKS[CANDLESTICKS.length + index]
-    if (env.strategy.endsWith('long')) {
-      const condition = new Decimal(lastCandle.high)
-        .greaterThan(lastCandle.lastUpFractal)
-      if (condition) {
-        LAST_ORDER_UP_FRACTAL = lastCandle.lastUpFractal
-      }
-    } else {
-      const condition = new Decimal(lastCandle.low)
-        .lessThan(lastCandle.lastDownFractal)
-      if (condition) {
-        LAST_ORDER_DOWN_FRACTAL = lastCandle.lastDownFractal
-      }
-    }
-  })
+  // .do(() => {
+  //   const index = env.tradeOnClose === 1 ? -1 : -2
+  //   const lastCandle = CANDLESTICKS[CANDLESTICKS.length + index]
+  //   if (env.strategy.endsWith('long')) {
+  //     const condition = new Decimal(lastCandle.high)
+  //       .greaterThan(lastCandle.lastUpFractal)
+  //     if (condition) {
+  //       LAST_ORDER_UP_FRACTAL = lastCandle.lastUpFractal
+  //     }
+  //   } else {
+  //     const condition = new Decimal(lastCandle.low)
+  //       .lessThan(lastCandle.lastDownFractal)
+  //     if (condition) {
+  //       LAST_ORDER_DOWN_FRACTAL = lastCandle.lastDownFractal
+  //     }
+  //   }
+  // })
   .filter(data => data.table === 'trade' && data.action == 'insert' && data.data.length > 0)
   .filter(() => {
     if (env.strategy.endsWith('long')) {
@@ -181,6 +181,7 @@ const socket$ = Rx.Observable.webSocket(opts)
 
   // Send telegram message after a successful trade (or not)
   .switchMap(msg => sendPostTradeNotification(msg))
+  .do(() => IS_POSITION_OPEN = false)
   .catch((err) => {
     logger.error(err.stack)
     return Rx.Observable.throw(err)

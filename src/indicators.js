@@ -260,7 +260,7 @@ const Resistance = (fractals, sources, jaws, teeths, lips) => {
     const sourceAboveLips = lips[n - 7] ? source
       .greaterThan(lips[n - 7]) : false
 
-    if (v !== null && sourceAboveJaw && sourceAboveTeeth && sourceAboveLips && alligatorAwakens) {
+    if (v !== null && sourceAboveTeeth) {
       resistances.push(v)
     }
     else {
@@ -298,7 +298,7 @@ const Support = (fractals, sources, jaws, teeths, lips) => {
     const sourceBelowLips = lips[n - 7] ? source
       .lessThan(lips[n - 7]) : false
 
-    if (v !== null && sourceBelowJaw && sourceBelowTeeth && sourceBelowLips && alligatorAwakens) {
+    if (v !== null && sourceBelowTeeth) {
       supports.push(v)
     }
     else {

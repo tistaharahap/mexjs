@@ -85,7 +85,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
       })
 
       // Get Resistance data
-      let resistances = Resistance(upFractals, lows, jaws, teeths, lips)
+      let resistances = Resistance(upFractals, closes, jaws, teeths, lips)
       resistances = resistances.slice(0, resistances.length - 3)
 
       resistances.forEach((v, n) => {
@@ -97,7 +97,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
       })
 
       // Get Resistance data
-      let supports = Support(downFractals, highs, jaws, teeths, lips)
+      let supports = Support(downFractals, closes, jaws, teeths, lips)
       supports = supports.slice(0, supports.length - 3)
 
       supports.forEach((v, n) => {
