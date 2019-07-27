@@ -44,8 +44,12 @@ class NektrabarShort extends Strategy {
    */
   breakoutCandle() {
     const lastCandle = this.candlesticks[this.candlesticks.length - 1]
-    return new Decimal(lastCandle.high)
+    const openAboveFractal = new Decimal(lastCandle.open)
       .greaterThan(lastCandle.lastDownFractal)
+    const closeBelowFractal = new Decimal(lastCandle.close)
+      .lessThan(lastCandle.lastDownFractal)
+
+    return openAboveFractal && closeBelowFractal
   }
 
   /**
