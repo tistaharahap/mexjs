@@ -244,12 +244,22 @@ Thank you for the people named here for their contributions.
 * [Rifky Ali](https://github.com/rifkyali)
 * [Gungde Yaya](https://github.com/gungde)
 
-### Contributing
+### Contributing Codes
 
 Please follow these guidelines to contribute:
 
 * ES6 strictly unless there's a good reason not to
 * All methods and functions should be documented with [JSDoc](https://devdocs.io/jsdoc/)
+
+### Contributing Something Other Than Codes
+
+You can always sign up to Bitmex by using the affiliate link below:
+
+[Sign Up to Bitmex](https://www.bitmex.com/register/Xyjltd)
+
+Or send some coins here:
+
+* BTC - `3BMEXqkCzqoGzrw4Y3dTfAzPD9qD9JxAmt`
 
 ## License
 
