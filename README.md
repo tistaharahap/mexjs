@@ -1,6 +1,82 @@
 # MexJS
 
-`MexJS` is a `BitMex` trading bot with custom strategies.
+`MexJS` is a `BitMex` trading bot with custom strategies. It is coded with [RxJs 5.5.x](https://rxjs.dev) to direct streams although in practice the codes are not pure functional, side effects are still welcomed.
+
+The core of the bot are as follows:
+
+* Candlestream - Poller to get new candles every 10 seconds
+* Realtime Feed - Websocket feed to get new prices as they're submitted to Bitmex
+* Strategies - Basically a rule engine filtering only what we want when we make an entry
+
+You'd notice the absence of an exit strategy. As of this writing, exit is done by setting TP limits. Through env vars described below, you can choose to set TP based on pips or percentages. As traders would have different styles in exiting, customizing exit strategies is within the feature plans.
+
+In pseudocode, the flow of `mexjs` is as follows:
+
+```
+## Cancel all orders
+cancel all order
+
+## Get Candle Data
+get candlestream
+apply indicators to candlestream
+
+## Check remaining open positions
+get open position
+if any open position:
+  get latest_price
+  set tp_price = tp_in_percentage * entry_price
+  set cl_price = sl_in_percentage * entry_price
+  if latest_price > tp_price
+    tp_price = latest_price +/- 1 pip
+
+  create take profit using limit (close)
+  create stop loss order using market (index price, close) 
+
+## Apply Filter
+connect ws
+filter state
+filter based on strategy
+set leverage position
+create entry order using limit
+while not trade timeout or order status = filled:
+  get entry order status
+
+if not filled:
+  break
+if filled or partially filled:
+  cancel order nya
+  get quantity yg didapet
+
+create take profit using limit (close)
+create stop loss order using market (index price, close)
+
+## Polling
+If any active order
+  get orders detail
+  if take profit order or stop loss order closed
+    cancel remaining order
+    set state
+    send message to telegram
+```
+
+### Versions
+
+Complete log of versions starting from `0.6.7`.
+
+#### 0.6.7
+
+As of this version, the core is becoming stable. The mechanics and error handlings have matured. 
+
+Introducing these new env vars:
+
+* `TP_STRATEGY`
+* `TP_IN_PERCENTAGE`
+* `TP_IN_PIP`
+* `SL_STRATEGY`
+* `SL_IN_PERCENTAGE`
+* `SL_IN_PIP`
+
+Now TP and SL can have different strategies.
 
 ## Indicators
 
@@ -168,12 +244,22 @@ Thank you for the people named here for their contributions.
 * [Rifky Ali](https://github.com/rifkyali)
 * [Gungde Yaya](https://github.com/gungde)
 
-### Contributing
+### Contributing Codes
 
 Please follow these guidelines to contribute:
 
 * ES6 strictly unless there's a good reason not to
 * All methods and functions should be documented with [JSDoc](https://devdocs.io/jsdoc/)
+
+### Contributing Something Other Than Codes
+
+You can always sign up to Bitmex by using the affiliate link below:
+
+[Sign Up to Bitmex](https://www.bitmex.com/register/Xyjltd)
+
+Or send some coins here:
+
+* BTC - `3BMEXqkCzqoGzrw4Y3dTfAzPD9qD9JxAmt`
 
 ## License
 
