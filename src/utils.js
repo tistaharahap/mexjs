@@ -13,7 +13,6 @@ import crypto from 'crypto'
  */
 const logConfigAndLastCandle = (candlesticks) => {
   const lastCandle = candlesticks[candlesticks.length - 1]
-  const beforeLastCandle = candlesticks[candlesticks.length - 2]
 
   logger.info(' ')
   logger.info('===========================================')
@@ -31,7 +30,6 @@ const logConfigAndLastCandle = (candlesticks) => {
   logger.info(`SL strategy: ${env.slStrategy}`)
   logger.info(`SL in %: ${env.slInPercentage}`)
   logger.info(`SL in pip: ${env.slInPip}`)
-  logger.info(`VWMA SL: ${env.vwmaSlBuffer}`)
   logger.info(`Trade on Close: ${env.tradeOnClose}`)
   logger.info(`Ideal Fractals: ${env.idealFractalsOnly}`)
   logger.info(`Hostname: ${env.name}`)
@@ -40,7 +38,6 @@ const logConfigAndLastCandle = (candlesticks) => {
   logger.info(`Open: ${lastCandle.open}`)
   logger.info(`High: ${lastCandle.high}`)
   logger.info(`Low: ${lastCandle.low}`)
-  logger.info(`Low2: ${beforeLastCandle.low}`)
   logger.info(`Close: ${lastCandle.close}`)
   logger.info(`Up Fractal: ${lastCandle.upFractal}`)
   logger.info(`Down Fractal: ${lastCandle.downFractal}`)
@@ -49,13 +46,6 @@ const logConfigAndLastCandle = (candlesticks) => {
   logger.info(`Teeth: ${lastCandle.teeth}`)
   logger.info(`Lips: ${lastCandle.lips}`)
   logger.info(`Jaw: ${lastCandle.jaw}`)
-  logger.info(`VWMA: ${lastCandle.vwma}`)
-  logger.info(`VWMA8: ${lastCandle.vwma8}`)
-  logger.info(`VWMA21: ${lastCandle.vwma21}`)
-  logger.info(`ADX: ${lastCandle.adx}`)
-  logger.info(`PDI: ${lastCandle.pdi}`)
-  logger.info(`MDI: ${lastCandle.mdi}`)
-  logger.info(`RSI14: ${lastCandle.rsi14}`)
   logger.info('===========================================')
 }
 

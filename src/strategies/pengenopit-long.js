@@ -4,8 +4,7 @@ import Decimal from 'decimal.js'
 class PengenOpitLong extends Strategy {
   filter() {
     return this.breakoutCandle()
-      && this.candleAboveAlligatorMouth()
-      && this.breakoutVWMA()
+      && (this.candleAboveAlligatorMouth() || this.candleBreakoutAlligatorMouth())
   }
 
   /**
@@ -18,23 +17,10 @@ class PengenOpitLong extends Strategy {
     const currentPrice = new Decimal(this.feed.data[0].price)
     const currentPriceAboveFractal = currentPrice
       .greaterThan(lastCandle.lastUpFractal)
+    const openBelowFractal = new Decimal(lastCandle.open)
+      .lessThan(lastCandle.lastUpFractal)
 
-    return currentPriceAboveFractal
-  }
-
-  /**
-   * The current candle must be breakout vwma 21
-   * 
-   * @return {boolean}
-   */
-  breakoutVWMA() {
-    const lastCandle = this.candlesticks[this.candlesticks.length - 1]
-    const lowBelowVWMA21 = new Decimal(lastCandle.low)
-      .lessThan(lastCandle.vwma21)
-    const highAboveVWMA21 = new Decimal(lastCandle.high)
-      .greaterThan(lastCandle.vwma21)
-
-    return lowBelowVWMA21 && highAboveVWMA21
+    return currentPriceAboveFractal && openBelowFractal
   }
 
   /**
@@ -51,8 +37,37 @@ class PengenOpitLong extends Strategy {
       .greaterThan(lastCandle.teeth)
     const lowAboveLips = lastCandleLow
       .greaterThan(lastCandle.lips)
+    const teethAboveJaw = new Decimal(lastCandle.jaw)
+      .lessThan(lastCandle.teeth)
+    const teethBelowLips = new Decimal(lastCandle.teeth)
+      .lessThan(lastCandle.lips)
 
-    return lowAboveJaw && lowAboveTeeth && lowAboveLips
+    return lowAboveJaw && lowAboveTeeth && lowAboveLips && teethAboveJaw && teethBelowLips
+  }
+
+  /**
+   * The current price must be breakout alligator mouth
+   * 
+   * @return {boolean}
+   */
+  candleBreakoutAlligatorMouth() {
+    const lastCandle = this.candlesticks[this.candlesticks.length - 1]
+    const lastCandleLow = new Decimal(lastCandle.low)
+    const lastCandleHigh = new Decimal(lastCandle.high)
+    const lowBelowJaw = lastCandleLow
+      .lessThan(lastCandle.jaw)
+    const lowBelowTeeth = lastCandleLow
+      .lessThan(lastCandle.teeth)
+    const lowBelowLips = lastCandleLow
+      .lessThan(lastCandle.lips)
+    const highAboveJaw = lastCandleHigh
+      .greaterThan(lastCandle.jaw)
+    const highAboveTeeth = lastCandleHigh
+      .greaterThan(lastCandle.teeth)
+    const highAboveLips = lastCandleHigh
+      .greaterThan(lastCandle.lips)
+
+    return lowBelowJaw && lowBelowTeeth && lowBelowLips && highAboveJaw && highAboveTeeth && highAboveLips
   }
 }
 

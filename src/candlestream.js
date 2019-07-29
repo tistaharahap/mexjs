@@ -1,8 +1,7 @@
 import Rx from '@reactivex/rxjs'
 import Decimal from 'decimal.js'
 import { BitmexAPI } from 'bitmex-node'
-import { UpFractal, DownFractal, IdealUpFractal, IdealDownFractal, VWMA, SMMA, Support, Resistance } from './indicators'
-import { ADX, RSI } from 'technicalindicators'
+import { UpFractal, DownFractal, IdealUpFractal, IdealDownFractal, SMMA, Support, Resistance } from './indicators'
 import env from './env'
 
 /**
@@ -36,8 +35,6 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
     })
     .map((klines) => {
       const highs = klines.map(x => x.high)
-      const closes = klines.map(x => x.close)
-      const volumes = klines.map(x => x.volume)
       const lows = klines.map(x => x.low)
 
       const lipsPeriod = 5
@@ -70,22 +67,11 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
         down: 0.0,
       }
 
-      const vwmas = VWMA(closes, volumes, 13)
-      const vwmas8 = VWMA(closes, volumes, 8)
-      const vwmas21 = VWMA(closes, volumes, 21)
       const upFractals = env.idealFractalsOnly === 1 ? IdealUpFractal(highs) : UpFractal(highs)
       const downFractals = env.idealFractalsOnly === 1 ? IdealDownFractal(lows) : DownFractal(lows)
-      const adxs = ADX.calculate({ high: highs, low: lows, close: closes, period: 34 })
-      const rsis = RSI.calculate({ values: closes, period: 14 })
-
-      vwmas.forEach((v, n) => {
-        klines[n]['vwma'] = v
-        klines[n]['vwma8'] = vwmas8[n]
-        klines[n]['vwma21'] = vwmas21[n]
-      })
 
       // Get Resistance data
-      let resistances = Resistance(upFractals, closes, jaws, teeths, lips)
+      let resistances = Resistance(upFractals, highs, teeths)
       resistances = resistances.slice(0, resistances.length - 3)
 
       resistances.forEach((v, n) => {
@@ -97,7 +83,7 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
       })
 
       // Get Resistance data
-      let supports = Support(downFractals, closes, jaws, teeths, lips)
+      let supports = Support(downFractals, lows, teeths)
       supports = supports.slice(0, supports.length - 3)
 
       supports.forEach((v, n) => {
@@ -107,21 +93,6 @@ const generateCandleStream = (apiKey, apiSecret, symbol, binSize, count) => {
         }
         klines[n + 3]['lastDownFractal'] = lastFractal.down
       })
-
-      klines = klines
-        .map((v, i) => {
-          const adx = adxs
-            .slice(i - i - i)
-            .slice(-1)[0]
-          const rsi14 = rsis
-            .slice(i - i - i)
-            .slice(-1)[0]
-          klines[i]['adx'] = adx.adx
-          klines[i]['pdi'] = adx.pdi
-          klines[i]['mdi'] = adx.mdi
-          klines[i]['rsi14'] = rsi14
-          return klines[i]
-        })
 
       return klines
     })

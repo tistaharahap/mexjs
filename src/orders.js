@@ -1,6 +1,5 @@
 import Rx from '@reactivex/rxjs'
 import Decimal from 'decimal.js'
-import { BitMexPlus } from 'bitmex-plus'
 import env from './env'
 import logger from './logger'
 import { sendPreTradeNotification } from './utils'
@@ -35,15 +34,15 @@ const setMargin = (bitmexClient) => {
  * 
  * @return {Rx.Observable}
  */
-const generateOrders = (bitmexClient, positionType, lastCandle) => {
+const generateOrders = (bitmexClient, positionType) => {
   return generateMarketOrder(bitmexClient, env.orderQuantity, positionType)
     .observeOn(Rx.Scheduler.async)
     .catch((err) => {
-      logger.error(`Error posting market buy order`)
+      logger.error('Error posting market buy order')
       return Rx.Observable.throw(err)
     })
     .delay(1000)
-    .switchMap(marketOrder => generateTpAndSlOrders(bitmexClient, marketOrder, positionType, lastCandle))
+    .switchMap(marketOrder => generateTpAndSlOrders(bitmexClient, marketOrder, positionType))
 }
 
 /**
@@ -54,7 +53,7 @@ const generateOrders = (bitmexClient, positionType, lastCandle) => {
  * 
  * @return {Rx.Observable}
  */
-const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) => {
+const generateTpAndSlOrders = (bitmexClient, order, positionType) => {
   const entryPrice = new Decimal(order.price)
 
   const marginMultiplier = positionType === 'long' ? 1.0 + (env.tpInPercentage / 100) :
@@ -93,8 +92,8 @@ const generateTpAndSlOrders = (bitmexClient, order, positionType, lastCandle) =>
       .toDecimalPlaces(0)
       .toNumber()
   } else {
-    slPrice = new Decimal(lastCandle.vwma8)
-      .add(positionType === 'long' ? env.vwmaSlBuffer * -1 : env.vwmaSlBuffer)
+    slPrice = entryPrice
+      .times(stopMultiplier)
       .toDecimalPlaces(0)
       .toNumber()
   }
@@ -208,10 +207,10 @@ const generateOrderPolling = (bitmexClient, limitOrderId, stopOrderId, marketBuy
             .minus(0.025 / 100)
             .times(env.margin)
             .times(100) :
-              new Decimal(0.075 / 100)
-                .add(0.05 / 100)
-                .times(env.margin)
-                .times(100)
+            new Decimal(0.075 / 100)
+              .add(0.05 / 100)
+              .times(env.margin)
+              .times(100)
           const pl = exitPrice
             .div(entryPrice)
             .minus(1.0)

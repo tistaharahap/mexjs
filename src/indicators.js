@@ -62,10 +62,10 @@ const UpFractal = (highs) => {
         highs[n - 1] <= highs[n]) && (highs[n + 1] < highs[n]) && (highs[n + 2] < highs[n]))
       const up4 = ((highs[n - 5] < highs[n]) && (highs[n - 4] < highs[n]) && (highs[n - 3] === highs[n]) && (
         highs[n - 2] == highs[n]) && (highs[n - 1] <= highs[n]) && (highs[n + 1] < highs[n]) && (
-          highs[n + 2] < highs[n]))
+        highs[n + 2] < highs[n]))
       const up5 = ((highs[n - 6] < highs[n]) && (highs[n - 5] < highs[n]) && (highs[n - 4] === highs[n]) && (
         highs[n - 3] <= highs[n]) && (highs[n - 2] == highs[n]) && (highs[n - 1] <= highs[n]) && (
-          highs[n + 1] < highs[n]) && (highs[n + 2] < highs[n]))
+        highs[n + 1] < highs[n]) && (highs[n + 2] < highs[n]))
 
       if (up1 || up2 || up3 || up4 || up5) {
         return v
@@ -102,10 +102,10 @@ const DownFractal = (lows) => {
         lows[n - 1] >= lows[n]) && (lows[n + 1] > lows[n]) && (lows[n + 2] > lows[n]))
       const low4 = ((lows[n - 5] > lows[n]) && (lows[n - 4] > lows[n]) && (lows[n - 3] === lows[n]) && (
         lows[n - 2] == lows[n]) && (lows[n - 1] >= lows[n]) && (lows[n + 1] > lows[n]) && (
-          lows[n + 2] > lows[n]))
+        lows[n + 2] > lows[n]))
       const low5 = ((lows[n - 6] > lows[n]) && (lows[n - 5] > lows[n]) && (lows[n - 4] === lows[n]) && (
         lows[n - 3] >= lows[n]) && (lows[n - 2] == lows[n]) && (lows[n - 1] >= lows[n]) && (
-          lows[n + 1] > lows[n]) && (lows[n + 2] > lows[n]))
+        lows[n + 1] > lows[n]) && (lows[n + 2] > lows[n]))
 
       if (low1 || low2 || low3 || low4 || low5) {
         return v
@@ -243,22 +243,12 @@ const SMMA = (highs, lows, period) => {
  * 
  * @return {Array}
  */
-const Resistance = (fractals, sources, jaws, teeths, lips) => {
+const Resistance = (fractals, sources, teeths) => {
   let resistances = []
   fractals.forEach((v, n) => {
     const source = new Decimal(sources[n])
-    const lipsAboveTeeth = (lips[n - 7] && teeths[n - 12]) ? new Decimal(lips[n - 7])
-      .greaterThan(teeths[n - 12]) : false
-    const teethAboveJaw = (teeths[n - 12] && jaws[n - 20]) ? new Decimal(teeths[n - 12])
-      .greaterThan(jaws[n - 20]) : false
-    const alligatorAwakens = lipsAboveTeeth && teethAboveJaw
-
-    const sourceAboveJaw = jaws[n - 20] ? source
-      .greaterThan(jaws[n - 20]) : false
     const sourceAboveTeeth = teeths[n - 12] ? source
       .greaterThan(teeths[n - 12]) : false
-    const sourceAboveLips = lips[n - 7] ? source
-      .greaterThan(lips[n - 7]) : false
 
     if (v !== null && sourceAboveTeeth) {
       resistances.push(v)
@@ -275,28 +265,16 @@ const Resistance = (fractals, sources, jaws, teeths, lips) => {
  * 
  * @param {Array} fractals - Candle fractals
  * @param {Array} sources - Candle sources
- * @param {Array} jaws - Candle jaws
  * @param {Array} teeths - Candle teeths
- * @param {Array} lips - Candle lips
  * 
  * @return {Array}
  */
-const Support = (fractals, sources, jaws, teeths, lips) => {
+const Support = (fractals, sources, teeths) => {
   let supports = []
   fractals.forEach((v, n) => {
     const source = new Decimal(sources[n])
-    const lipsBelowTeeth = (lips[n - 7] && teeths[n - 12]) ? new Decimal(lips[n - 7])
-      .lessThan(teeths[n - 12]) : false
-    const teethBelowJaw = (teeths[n - 12] && jaws[n - 20]) ? new Decimal(teeths[n - 12])
-      .lessThan(jaws[n - 20]) : false
-    const alligatorAwakens = lipsBelowTeeth && teethBelowJaw
-
-    const sourceBelowJaw = jaws[n - 20] ? source
-      .lessThan(jaws[n - 20]) : false
     const sourceBelowTeeth = teeths[n - 12] ? source
       .lessThan(teeths[n - 12]) : false
-    const sourceBelowLips = lips[n - 7] ? source
-      .lessThan(lips[n - 7]) : false
 
     if (v !== null && sourceBelowTeeth) {
       supports.push(v)
