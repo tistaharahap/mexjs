@@ -6,8 +6,9 @@
   "scripts": {
     "start": "nodemon --watch src --exec babel-node src/app.js",
     "test-ws": "nodemon --watch src --exec babel-node src/tests/websocketauth.js",
-    "build": "babel ./src/ -x '.js' --retain-lines -d dist",
-    "serve": "node dist/app.js"
+    "build": "npm run lint && babel ./src/ -x '.js' --retain-lines -d dist",
+    "serve": "node dist/app.js",
+    "lint": "./node_modules/.bin/eslint src"
   },
   "author": "Batista Harahap",
   "license": "ISC",
@@ -18,6 +19,7 @@
     "bitmex-plus": "^1.3.1",
     "crypto": "^1.0.1",
     "decimal.js": "^10.2.0",
+    "eslint": "^6.1.0",
     "numeral": "^2.0.6",
     "rxjs": "^6.5.2",
     "technicalindicators": "^2.0.9",
