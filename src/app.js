@@ -7,7 +7,7 @@ import { generateOrders, setMargin, cancelAllOrders, getOpenPositions, generateM
 import logger from './logger'
 import { getStrategyByName } from './strategies'
 import { logConfigAndLastCandle, sendPostTradeNotification, getInitSecond } from './utils'
-import Decimal from 'decimal.js';
+import Decimal from 'decimal.js'
 
 /**
  * @type {Array} Candlesticks state var
