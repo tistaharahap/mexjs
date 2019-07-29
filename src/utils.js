@@ -117,10 +117,25 @@ const signatureForWebsocketAuth = (apiSecret = null) => {
   }
 }
 
+/**
+ * Array generator with start and end points
+ * 
+ * @param {number} start - Starting index
+ * @param {number} end - Last index
+ * 
+ * @return {array}
+ */
+function* range(start, end) {
+  for (let i = start; i <= end; i++) {
+      yield i;
+  }
+}
+
 export {
   logConfigAndLastCandle,
   sendPreTradeNotification,
   sendPostTradeNotification,
   getInitSecond,
   signatureForWebsocketAuth,
+  range,
 }

@@ -1,5 +1,6 @@
 import { SMA, AwesomeOscillator, WEMA } from 'technicalindicators'
 import Decimal from 'decimal.js'
+import { range } from './utils'
 
 /**
  * Generate Volume Weighted Moving Average values for given time series
@@ -284,6 +285,49 @@ const Support = (fractals, sources, teeths) => {
   return supports
 }
 
+/**
+ * Generate a Bill Williams Alligator
+ * 
+ * @param {Array} highs - Candle highs
+ * @param {Array} lows - Candle lows
+ * 
+ * @return {Array}
+ */
+const WilliamsAlligator = (highs, lows) => {
+  const lipsPeriod = 5
+  const lipsOffset = 3
+  const teethPeriod = 8
+  const teethOffset = 5
+  const jawsPeriod = 13
+  const jawsOffset = 8
+
+  let lips = SMMA(highs, lows, lipsPeriod)
+  lips = lips.slice(0, lips.length - lipsOffset)
+  
+  let teeths = SMMA(highs, lows, teethPeriod)
+  teeths = teeths.slice(0, teeths.length - teethOffset)
+  
+  let jaws = SMMA(highs, lows, jawsPeriod)
+  jaws = jaws.slice(0, jaws.length - jawsOffset)
+
+  const klines = [...range(0, highs.length)]
+    .map(() => {
+      return {}
+    })
+
+  lips.forEach((v, n) => {
+    klines[n + lipsPeriod + lipsOffset - 1]['lips'] = new Decimal(v).toDecimalPlaces(1).toNumber()
+  })
+  teeths.forEach((v, n) => {
+    klines[n + teethPeriod + teethOffset - 1]['teeth'] = new Decimal(v).toDecimalPlaces(1).toNumber()
+  })
+  jaws.forEach((v, n) => {
+    klines[n + jawsPeriod + jawsOffset - 1]['jaw'] = new Decimal(v).toDecimalPlaces(1).toNumber()
+  })
+
+  return klines
+}
+
 export {
   VWMA,
   UpFractal,
@@ -295,4 +339,5 @@ export {
   SMMA,
   MarketFacilitationIndex,
   AccelerationDecelerationOscillator,
+  WilliamsAlligator,
 }

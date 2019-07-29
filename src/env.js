@@ -2,8 +2,8 @@ import packageJson from '../package.json'
 import os from 'os'
 
 const env = {
-  apiKey: process.env.API_KEY || 'API_KEY',
-  apiSecret: process.env.API_SECRET || 'API_SECRET',
+  apiKey: process.env.API_KEY || 'q39qb1DyxQOWzPvwoo5Ecee7',
+  apiSecret: process.env.API_SECRET || 'e7A4KJNAIM2BW9uFauyfNxVo1LrGpeZg2nYO9rs6bDC8AFsn',
   candleIntervalInSeconds: process.env.CANDLE_INTERVAL_IN_SECONDS || 10,
   tf: process.env.TF || '5m',
   symbol: process.env.SYMBOL || 'XBTUSD',

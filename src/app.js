@@ -66,7 +66,7 @@ cancelAllOrders(bitmexClient)
 const candleStreamInterval$ = Rx.Observable
   .interval(env.candleIntervalInSeconds * 1000)
   .startWith(0)
-  .switchMap(() => generateCandleStream(env.apiKey, env.apiSecret, env.symbol, env.tf, 300))
+  .switchMap(() => generateCandleStream(env.apiKey, env.apiSecret, env.symbol, env.tf, 100))
   .do((res) => {
     const lastCandle = res[res.length - 1]
 
@@ -131,56 +131,56 @@ const socket$ = Rx.Observable.webSocket(opts)
     }
   })
   .filter(data => data.table === 'trade' && data.action == 'insert' && data.data.length > 0)
-  .filter(() => {
-    if (env.strategy.endsWith('long')) {
-      return LAST_ORDER_UP_FRACTAL === null || LAST_ORDER_UP_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastUpFractal
-    } else if (env.strategy.endsWith('short')) {
-      return LAST_ORDER_DOWN_FRACTAL === null || LAST_ORDER_DOWN_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastDownFractal
-    } else {
-      return false
-    }
-  })
-  .filter(() => {
-    if (env.strategy.endsWith('long')) {
-      return !WAIT_FOR_NEXT_UP_FRACTAL
-    } else if (env.strategy.endsWith('short')) {
-      return !WAIT_FOR_NEXT_DOWN_FRACTAL
-    } else {
-      return false
-    }
-  })
+  // .filter(() => {
+  //   if (env.strategy.endsWith('long')) {
+  //     return LAST_ORDER_UP_FRACTAL === null || LAST_ORDER_UP_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastUpFractal
+  //   } else if (env.strategy.endsWith('short')) {
+  //     return LAST_ORDER_DOWN_FRACTAL === null || LAST_ORDER_DOWN_FRACTAL !== CANDLESTICKS[CANDLESTICKS.length - 1].lastDownFractal
+  //   } else {
+  //     return false
+  //   }
+  // })
+  // .filter(() => {
+  //   if (env.strategy.endsWith('long')) {
+  //     return !WAIT_FOR_NEXT_UP_FRACTAL
+  //   } else if (env.strategy.endsWith('short')) {
+  //     return !WAIT_FOR_NEXT_DOWN_FRACTAL
+  //   } else {
+  //     return false
+  //   }
+  // })
 
   // The Strategy we are using
   .filter((feed) => getStrategyByName(env.strategy, CANDLESTICKS, feed).filter())
 
   // Let's make it happen!
-  .switchMap(() => setMargin(bitmexClient))
-  .switchMap(() => {
-    if (env.strategy.endsWith('long')) {
-      LAST_ORDER_UP_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastUpFractal
-      IS_POSITION_OPEN = true
-      return generateOrders(bitmexClient, 'long', CANDLESTICKS[CANDLESTICKS.length - 1])
-        .catch((err) => {
-          IS_POSITION_OPEN = false
-          return Rx.Observable.throw(err)
-        })
-        .do(() => IS_POSITION_OPEN = false)
-    } else if (env.strategy.endsWith('short')) {
-      LAST_ORDER_DOWN_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastDownFractal
-      IS_POSITION_OPEN = true
-      return generateOrders(bitmexClient, 'short', CANDLESTICKS[CANDLESTICKS.length - 1])
-        .catch((err) => {
-          IS_POSITION_OPEN = false
-          return Rx.Observable.throw(err)
-        })
-        .do(() => IS_POSITION_OPEN = false)
-    } else {
-      return Rx.Observable.empty()
-    }
-  })
+  // .switchMap(() => setMargin(bitmexClient))
+  // .switchMap(() => {
+  //   if (env.strategy.endsWith('long')) {
+  //     LAST_ORDER_UP_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastUpFractal
+  //     IS_POSITION_OPEN = true
+  //     return generateOrders(bitmexClient, 'long', CANDLESTICKS[CANDLESTICKS.length - 1])
+  //       .catch((err) => {
+  //         IS_POSITION_OPEN = false
+  //         return Rx.Observable.throw(err)
+  //       })
+  //       .do(() => IS_POSITION_OPEN = false)
+  //   } else if (env.strategy.endsWith('short')) {
+  //     LAST_ORDER_DOWN_FRACTAL = CANDLESTICKS[CANDLESTICKS.length - 1].lastDownFractal
+  //     IS_POSITION_OPEN = true
+  //     return generateOrders(bitmexClient, 'short', CANDLESTICKS[CANDLESTICKS.length - 1])
+  //       .catch((err) => {
+  //         IS_POSITION_OPEN = false
+  //         return Rx.Observable.throw(err)
+  //       })
+  //       .do(() => IS_POSITION_OPEN = false)
+  //   } else {
+  //     return Rx.Observable.empty()
+  //   }
+  // })
 
-  // Send telegram message after a successful trade (or not)
-  .switchMap(msg => sendPostTradeNotification(msg))
+  // // Send telegram message after a successful trade (or not)
+  // .switchMap(msg => sendPostTradeNotification(msg))
   .catch((err) => {
     logger.error(err.stack)
     return Rx.Observable.throw(err)

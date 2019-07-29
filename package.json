@@ -1,11 +1,12 @@
 {
   "name": "mexjs",
-  "version": "0.6.8",
+  "version": "0.7.0",
   "description": "",
   "main": "src/app.js",
   "scripts": {
     "start": "nodemon --watch src --exec babel-node src/app.js",
     "test-ws": "nodemon --watch src --exec babel-node src/tests/websocketauth.js",
+    "test-strat": "nodemon --watch src --exec babel-node src/tests/strategy-with-indicators.js",
     "build": "npm run lint && babel ./src/ -x '.js' --retain-lines -d dist",
     "serve": "node dist/app.js",
     "lint": "./node_modules/.bin/eslint src"

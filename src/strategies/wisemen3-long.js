@@ -1,7 +1,45 @@
 import Strategy from './base'
 import Decimal from 'decimal.js'
+import { UpFractal, WilliamsAlligator, Resistance } from '../indicators'
 
 class Wisemen3Long extends Strategy {
+  constructor(candlesticks, feed) {
+    const highs = candlesticks.map(x => x.high)
+    const lows = candlesticks.map(x => x.low)
+
+    // Define indicators here [indicatorFunction, ['indicator', 'inputs]]
+    const indicators = [
+      [UpFractal, [highs]],
+      [WilliamsAlligator, [highs, lows]]
+    ]
+
+    // Call super right after setting which indicators to use
+    super(candlesticks, feed, indicators)
+
+    // Anything to be calculated after indicator calculation goes here
+    let lastFractal = 0.0
+
+    const upFractals = this.candlesticks.map(x => x.UpFractal)
+    const teeth = this.candlesticks.map((x) => {
+      if (!x.hasOwnProperty('WilliamsAlligator')) {
+        return null
+      }
+      return x.WilliamsAlligator.teeth
+    })
+    
+    let resistances = Resistance(upFractals, highs, teeth)
+    resistances = resistances
+      .slice(0, resistances.length - 3)
+    resistances
+      .forEach((v, n) => {
+        this.candlesticks[n]['Resistance'] = v
+        if (v !== null) {
+          lastFractal = v
+        }
+        this.candlesticks[n + 3]['LastUpFractal'] = lastFractal
+      })
+  }
+
   filter() {
     return this.breakoutCandle()
       && this.candleAboveAlligatorMouth()
@@ -16,7 +54,7 @@ class Wisemen3Long extends Strategy {
     const lastCandle = this.candlesticks[this.candlesticks.length - 1]
     const currentPrice = new Decimal(this.feed.data[0].price)
     const currentPriceAboveFractal = currentPrice
-      .greaterThan(lastCandle.lastUpFractal)
+      .greaterThan(lastCandle.LastUpFractal)
 
     return currentPriceAboveFractal
   }
@@ -30,11 +68,11 @@ class Wisemen3Long extends Strategy {
     const lastCandle = this.candlesticks[this.candlesticks.length - 1]
     const lastCandleLow = new Decimal(lastCandle.low)
     const lowAboveJaw = lastCandleLow
-      .greaterThan(lastCandle.jaw)
+      .greaterThan(lastCandle.WilliamsAlligator.jaw)
     const lowAboveTeeth = lastCandleLow
-      .greaterThan(lastCandle.teeth)
+      .greaterThan(lastCandle.WilliamsAlligator.teeth)
     const lowAboveLips = lastCandleLow
-      .greaterThan(lastCandle.lips)
+      .greaterThan(lastCandle.WilliamsAlligator.lips)
 
     return lowAboveJaw && lowAboveTeeth && lowAboveLips
   }
