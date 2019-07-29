@@ -1,6 +1,5 @@
 import Rx from '@reactivex/rxjs'
 import Decimal from 'decimal.js'
-import { BitMexPlus } from 'bitmex-plus'
 import env from './env'
 import logger from './logger'
 import { sendPreTradeNotification } from './utils'
@@ -39,7 +38,7 @@ const generateOrders = (bitmexClient, positionType, lastCandle) => {
   return generateMarketOrder(bitmexClient, env.orderQuantity, positionType)
     .observeOn(Rx.Scheduler.async)
     .catch((err) => {
-      logger.error(`Error posting market buy order`)
+      logger.error('Error posting market buy order')
       return Rx.Observable.throw(err)
     })
     .delay(1000)
@@ -208,10 +207,10 @@ const generateOrderPolling = (bitmexClient, limitOrderId, stopOrderId, marketBuy
             .minus(0.025 / 100)
             .times(env.margin)
             .times(100) :
-              new Decimal(0.075 / 100)
-                .add(0.05 / 100)
-                .times(env.margin)
-                .times(100)
+            new Decimal(0.075 / 100)
+              .add(0.05 / 100)
+              .times(env.margin)
+              .times(100)
           const pl = exitPrice
             .div(entryPrice)
             .minus(1.0)
